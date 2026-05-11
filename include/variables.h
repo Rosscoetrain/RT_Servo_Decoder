@@ -3,7 +3,7 @@
  */
 
 /*
- *  © 2023 Ross Scanlon
+ *  © 2023, 2026 Ross Scanlon
  *
  *  This is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -210,19 +210,12 @@ uint16_t BaseTurnoutAddress;
  */
 // for address learning mode
 #ifdef LEARNING
-
-#ifdef ARDUINO_ARCH_ESP32
-int LEARNINGBUTTON = 2;    // pin 
-#else
 int LEARNINGBUTTON = A6;    // pin A6
-#endif
 
 int learningMode = LOW;
 #endif
 
-#ifndef ARDUINO_ARCH_ESP32
 #define LEDCONTROL LED_BUILTIN
-#endif
 
 // buffer to hold serial commands
 String readString;

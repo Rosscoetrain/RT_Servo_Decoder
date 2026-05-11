@@ -1,5 +1,5 @@
  /*
- *  © 2023 Ross Scanlon
+ *  © 2023,2026 Ross Scanlon
  *
  *  This is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -15,7 +15,7 @@
  *  along with this code.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-// This is a DCC Accessory Decoder to drive 8 Servo Turnouts
+// This is a DCC Accessory Decoder to drive 16 Servo Turnouts
 // Based on the NMRA Pulsed 8 stationary decoder
 
 
@@ -28,10 +28,6 @@
 #include "PinPulser.h"
 
 
-/*
- * Rosscoe Train functions and variables
- */
-
 #include "version.h"
 
 #include "variables.h"
@@ -39,16 +35,10 @@
 #include "functions.h"
 
 
-/*
- * RT end
- */
-
-
-
 void setup()
 {
 #ifdef ENABLE_SERIAL
-  Serial.begin(115200);
+  MYSERIAL.begin(115200);
   uint8_t maxWaitLoops = 255;
   while(!Serial && maxWaitLoops--)
     delay(20);
@@ -74,16 +64,16 @@ void setup()
   Dcc.init( MAN_ID_DIY, DCC_DECODER_VERSION_NUM, FLAGS_OUTPUT_ADDRESS_MODE | FLAGS_DCC_ACCESSORY_DECODER, 0 );
 
 #ifdef ENABLE_SERIAL
-  Serial.print("Rosscoe Train DCC 8 Turnout Servo Accessory Decoder. ");
+  MYSERIAL.print("Rosscoe Train DCC 8 Turnout Servo Accessory Decoder. ");
 
-  Serial.print(F("Version: "));
-  Serial.print(versionBuffer[0]);
-  Serial.print(F("."));
-  Serial.print(versionBuffer[1]);
-  Serial.print(F("."));
-  Serial.println(versionBuffer[2]);
+  MYSERIAL.print(F("Version: "));
+  MYSERIAL.print(versionBuffer[0]);
+  MYSERIAL.print(F("."));
+  MYSERIAL.print(versionBuffer[1]);
+  MYSERIAL.print(F("."));
+  MYSERIAL.println(versionBuffer[2]);
  
-  Serial.println();
+  MYSERIAL.println();
 #endif
 
   pwm.begin();
@@ -112,7 +102,7 @@ void setup()
   pinMode(LATCH_PIN, OUTPUT);
   pinMode(DATA_PIN, OUTPUT);
   pinMode(CLOCK_PIN, OUTPUT);
-  
+ 
 #else
 
 // set digital and analog pins defined in outputs to OUTPUT
@@ -133,7 +123,7 @@ void setup()
 #ifdef FORCE_RESET_FACTORY_DEFAULT_CV
   notifyCVResetFactoryDefault(); 
 #ifdef ENABLE_SERIAL
-  Serial.println("Resetting CVs to Factory Defaults");
+  MYSERIAL.println("Resetting CVs to Factory Defaults");
 #endif
 #endif
 
@@ -171,7 +161,7 @@ void loop()
     uint8_t val = FactoryDefaultCVs[FactoryDefaultCVIndex].Value;
 #ifdef ENABLE_SERIAL
 #ifdef DEBUG_MSG
-    Serial.print("loop: Write Default CV: "); Serial.print(cv,DEC); Serial.print(" Value: "); Serial.println(val,DEC);
+    MYSERIAL.print("loop: Write Default CV: "); MYSERIAL.print(cv,DEC); MYSERIAL.print(" Value: "); MYSERIAL.println(val,DEC);
 #endif     
 #endif
     Dcc.setCV( cv, val );
@@ -212,9 +202,9 @@ void loop()
 
   readString="";              //empty for next input
 
-  while (Serial.available())
+  while (MYSERIAL.available())
    {
-    char c = Serial.read();     //gets one byte from serial buffer
+    char c = MYSERIAL.read();     //gets one byte from serial buffer
     readString += c;            //makes the string readString
     delay(10);                   //slow looping to allow buffer to fill with next character
    }
@@ -235,7 +225,7 @@ void loop()
 
 #ifdef ENABLE_SERIAL
 #ifdef DEBUG_MSG
-      Serial.print("i: ");Serial.print(i);Serial.print(" pos: ");Serial.println(pinPulser.getServoPosition(i));
+      MYSERIAL.print("i: ");MYSERIAL.print(i);MYSERIAL.print(" pos: ");MYSERIAL.println(pinPulser.getServoPosition(i));
 #endif
 #endif
 

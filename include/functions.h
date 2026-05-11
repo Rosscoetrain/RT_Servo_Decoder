@@ -3,7 +3,7 @@
  */
 
 /*
- *  © 2023 Ross Scanlon
+ *  © 2023, 2026 Ross Scanlon
  *
  *  This is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -21,6 +21,8 @@
 
 #ifndef FUNCTIONS_H
 #define FUNCTIONS_H
+
+#include "defines.h"
 
 /*
  * a function to read an analogue pin and return a boolean value depending on reading.
@@ -71,6 +73,8 @@ void showAcknowledge(int nb)
 void(* resetFunc) (void) = 0;                     // declare reset function at address 0
 
 
+#ifdef ENABLE_SERIAL
+
 /*
  * show the user CVs only
  */
@@ -79,42 +83,45 @@ void showUserCVs()
  {
   for(uint8_t i = 0; i < NUM_TURNOUTS; i++)
    {
-    Serial.print(F("CV"));
-    Serial.print(CV_USER_BASE_ADDRESS + (i * CV_PER_OUTPUT));
-    Serial.print(F(" = "));
-    Serial.print(Dcc.getCV(CV_USER_BASE_ADDRESS + (i * CV_PER_OUTPUT)));
-    Serial.print("    ");
+    MYSERIAL.print(F("CV"));
+    MYSERIAL.print(CV_USER_BASE_ADDRESS + (i * CV_PER_OUTPUT));
+    MYSERIAL.print(F(" = "));
+    MYSERIAL.print(Dcc.getCV(CV_USER_BASE_ADDRESS + (i * CV_PER_OUTPUT)));
+    MYSERIAL.print("    ");
 
-    Serial.print(F("CV"));
-    Serial.print(CV_USER_BASE_ADDRESS + 1 + (i * CV_PER_OUTPUT));
-    Serial.print(F(" = "));
-    Serial.print(Dcc.getCV(CV_USER_BASE_ADDRESS + 1 + (i * CV_PER_OUTPUT)));
-    Serial.print("    ");
+    MYSERIAL.print(F("CV"));
+    MYSERIAL.print(CV_USER_BASE_ADDRESS + 1 + (i * CV_PER_OUTPUT));
+    MYSERIAL.print(F(" = "));
+    MYSERIAL.print(Dcc.getCV(CV_USER_BASE_ADDRESS + 1 + (i * CV_PER_OUTPUT)));
+    MYSERIAL.print("    ");
 
-    Serial.print(F("CV"));
-    Serial.print(CV_USER_BASE_ADDRESS + 2 + (i * CV_PER_OUTPUT));
-    Serial.print(F(" = "));
-    Serial.print(Dcc.getCV(CV_USER_BASE_ADDRESS + 2 + (i * CV_PER_OUTPUT)));
-    Serial.print("    ");
+    MYSERIAL.print(F("CV"));
+    MYSERIAL.print(CV_USER_BASE_ADDRESS + 2 + (i * CV_PER_OUTPUT));
+    MYSERIAL.print(F(" = "));
+    MYSERIAL.print(Dcc.getCV(CV_USER_BASE_ADDRESS + 2 + (i * CV_PER_OUTPUT)));
+    MYSERIAL.print("    ");
 
-    Serial.print(F("CV"));
-    Serial.print(CV_USER_BASE_ADDRESS + 3 + (i * CV_PER_OUTPUT));
-    Serial.print(F(" = "));
-    Serial.print(Dcc.getCV(CV_USER_BASE_ADDRESS + 3 + (i * CV_PER_OUTPUT)));
-    Serial.print("    ");
+    MYSERIAL.print(F("CV"));
+    MYSERIAL.print(CV_USER_BASE_ADDRESS + 3 + (i * CV_PER_OUTPUT));
+    MYSERIAL.print(F(" = "));
+    MYSERIAL.print(Dcc.getCV(CV_USER_BASE_ADDRESS + 3 + (i * CV_PER_OUTPUT)));
+    MYSERIAL.print("    ");
 
-    Serial.print(F("CV"));
-    Serial.print(CV_USER_BASE_ADDRESS + 4 + (i * CV_PER_OUTPUT));
-    Serial.print(F(" = "));
-    Serial.print(Dcc.getCV(CV_USER_BASE_ADDRESS + 4 + (i * CV_PER_OUTPUT)));
-    Serial.println("    ");
+    MYSERIAL.print(F("CV"));
+    MYSERIAL.print(CV_USER_BASE_ADDRESS + 4 + (i * CV_PER_OUTPUT));
+    MYSERIAL.print(F(" = "));
+    MYSERIAL.print(Dcc.getCV(CV_USER_BASE_ADDRESS + 4 + (i * CV_PER_OUTPUT)));
+    MYSERIAL.println("    ");
    }
  }
 
+#endif
 
 /*
  * process the serial commands sent from the serial monitor
 */
+#ifdef ENABLE_SERIAL
+
 
 #include "StringSplitter.h"
 
@@ -122,12 +129,12 @@ void doSerialCommand(String readString)
  {
   readString.trim();
 
-  Serial.println(readString);                    // so you can see the captured string
+  MYSERIAL.println(readString);                    // so you can see the captured string
 
   if (readString == "<Z>")
    {
 
-    Serial.println(F("Resetting"));
+    MYSERIAL.println(F("Resetting"));
 
     resetFunc();
    }
@@ -142,11 +149,11 @@ void doSerialCommand(String readString)
 
     if (ackOn)
      {
-      Serial.println("ackOn");
+      MYSERIAL.println("ackOn");
      }
     else
      {
-      Serial.println("ackOff");
+      MYSERIAL.println("ackOff");
      }
 
    }
@@ -154,77 +161,41 @@ void doSerialCommand(String readString)
 
   if (readString == "<?>")
    {
-    Serial.println(F("Help Text"));
+    MYSERIAL.println(F("Help Text"));
 
-    Serial.println(F("Close a turnout: <C address>"));
-    Serial.println(F("Throw a turnout: <T address>"));
+    MYSERIAL.println(F("Close a turnout: <C address>"));
+    MYSERIAL.println(F("Throw a turnout: <T address>"));
 
-    Serial.println(F("Set decoder base address: <A address>"));
+    MYSERIAL.println(F("Set decoder base address: <A address>"));
 
-    Serial.println(F("Set decoder output closed position: <M output  mS / 10>"));
-    Serial.println(F("Set decoder output thrown position: <N output mS / 10>"));
-    Serial.println(F("Set decoder output move time: <O output S / 10>"));
-    Serial.println(F("Set decoder output configuration: <P output [0:1:2:3]>"));
+    MYSERIAL.println(F("Set decoder output closed position: <M output  mS / 10>"));
+    MYSERIAL.println(F("Set decoder output thrown position: <N output mS / 10>"));
+    MYSERIAL.println(F("Set decoder output move time: <O output S / 10>"));
+    MYSERIAL.println(F("Set decoder output configuration: <P output [0:1:2:3]>"));
     
-    Serial.println(F("Where output is 0 - 15 as on the decoder pcb"));
+    MYSERIAL.println(F("Where output is 0 - 15 as on the decoder pcb"));
 
-    Serial.println(F("Show current CVs: <>"));
+    MYSERIAL.println(F("Show current CVs: <>"));
                      
-    Serial.println(F("Soft Reset: <Z>"));
+    MYSERIAL.println(F("Soft Reset: <Z>"));
 
    }
   else
    {
     if (readString.startsWith("<>"))
      {
-      Serial.println(F("CVs are:"));
+      MYSERIAL.println(F("CVs are:"));
 
-      Serial.print(F("CV"));
-      Serial.print(CV_ACCESSORY_DECODER_ADDRESS_LSB);
-      Serial.print(F(" = "));
-      Serial.println(Dcc.getCV(CV_ACCESSORY_DECODER_ADDRESS_LSB));
-      Serial.print(F("CV"));
-      Serial.print(CV_ACCESSORY_DECODER_ADDRESS_MSB);
-      Serial.print(F(" = "));
-      Serial.println(Dcc.getCV(CV_ACCESSORY_DECODER_ADDRESS_MSB));
+      MYSERIAL.print(F("CV"));
+      MYSERIAL.print(CV_ACCESSORY_DECODER_ADDRESS_LSB);
+      MYSERIAL.print(F(" = "));
+      MYSERIAL.println(Dcc.getCV(CV_ACCESSORY_DECODER_ADDRESS_LSB));
+      MYSERIAL.print(F("CV"));
+      MYSERIAL.print(CV_ACCESSORY_DECODER_ADDRESS_MSB);
+      MYSERIAL.print(F(" = "));
+      MYSERIAL.println(Dcc.getCV(CV_ACCESSORY_DECODER_ADDRESS_MSB));
 
       showUserCVs();
-/*
-      for(uint8_t i = 0; i < NUM_TURNOUTS; i++)
-       {
-        Serial.print(F("CV"));
-        Serial.print(CV_USER_BASE_ADDRESS + (i * CV_PER_OUTPUT));
-        Serial.print(F(" = "));
-        Serial.print(Dcc.getCV(CV_USER_BASE_ADDRESS + (i * CV_PER_OUTPUT)));
-        Serial.print("    ");
-
-        Serial.print(F("CV"));
-        Serial.print(CV_USER_BASE_ADDRESS + 1 + (i * CV_PER_OUTPUT));
-        Serial.print(F(" = "));
-        Serial.print(Dcc.getCV(CV_USER_BASE_ADDRESS + 1 + (i * CV_PER_OUTPUT)));
-        Serial.print("    ");
-
-        Serial.print(F("CV"));
-        Serial.print(CV_USER_BASE_ADDRESS + 2 + (i * CV_PER_OUTPUT));
-        Serial.print(F(" = "));
-        Serial.print(Dcc.getCV(CV_USER_BASE_ADDRESS + 2 + (i * CV_PER_OUTPUT)));
-        Serial.print("    ");
-
-        Serial.print(F("CV"));
-        Serial.print(CV_USER_BASE_ADDRESS + 3 + (i * CV_PER_OUTPUT));
-        Serial.print(F(" = "));
-        Serial.print(Dcc.getCV(CV_USER_BASE_ADDRESS + 3 + (i * CV_PER_OUTPUT)));
-        Serial.print("    ");
-
-        Serial.print(F("CV"));
-        Serial.print(CV_USER_BASE_ADDRESS + 4 + (i * CV_PER_OUTPUT));
-        Serial.print(F(" = "));
-        Serial.print(Dcc.getCV(CV_USER_BASE_ADDRESS + 4 + (i * CV_PER_OUTPUT)));
-        Serial.println("    ");
-
-       }
-*/
-
      }
     else
      {
@@ -253,7 +224,7 @@ void doSerialCommand(String readString)
            }
           else
            {
-            Serial.println(F("Invalid command: should be <C address>"));
+            MYSERIAL.println(F("Invalid command: should be <C address>"));
            }
           delete splitter;
           splitter = NULL;
@@ -273,7 +244,7 @@ void doSerialCommand(String readString)
            }
           else
            {
-            Serial.println(F("Invalid command: should be <T address>"));
+            MYSERIAL.println(F("Invalid command: should be <T address>"));
            }
           delete splitter;
           splitter = NULL;
@@ -297,9 +268,9 @@ void doSerialCommand(String readString)
             byte H = (addr + 3) / 1024;
 
 #ifdef DEBUG_MSG
-            Serial.print(F("Value = ")); Serial.println(addr);
-            Serial.print(F(" H = ")); Serial.println(H);
-            Serial.print(F(" L = ")); Serial.println(L);
+            MYSERIAL.print(F("Value = ")); MYSERIAL.println(addr);
+            MYSERIAL.print(F(" H = ")); MYSERIAL.println(H);
+            MYSERIAL.print(F(" L = ")); MYSERIAL.println(L);
 #endif
                   
             Dcc.setCV(CV_ACCESSORY_DECODER_ADDRESS_MSB, H);
@@ -307,7 +278,7 @@ void doSerialCommand(String readString)
            }
           else
            {
-            Serial.println(F("Invalid command: should be <A address>"));
+            MYSERIAL.println(F("Invalid command: should be <A address>"));
            }
           delete splitter;
           splitter = NULL;
@@ -321,7 +292,7 @@ void doSerialCommand(String readString)
 
       if (readString == "<D>")
        {
-        Serial.println(F("Reset factory default CVs"));
+        MYSERIAL.println(F("Reset factory default CVs"));
         notifyCVResetFactoryDefault();
        }
 
@@ -345,8 +316,8 @@ void doSerialCommand(String readString)
             int value = splitter->getItemAtIndex(2).toInt();
 
 #ifdef DEBUG_MSG
-            Serial.print(F("Adress = ")); Serial.println(addr);
-            Serial.print(F("Value = ")); Serial.println(value);
+            MYSERIAL.print(F("Adress = ")); MYSERIAL.println(addr);
+            MYSERIAL.print(F("Value = ")); MYSERIAL.println(value);
 #endif
             if ( addr >= 0 && addr <= 15 )
              {
@@ -354,12 +325,12 @@ void doSerialCommand(String readString)
              }
             else
              {
-              Serial.println(F("Invalid output: should be 0 to 15"));
+              MYSERIAL.println(F("Invalid output: should be 0 to 15"));
              }
            }
           else
            {
-            Serial.println(F("Invalid command: should be <M output ms/10>"));
+            MYSERIAL.println(F("Invalid command: should be <M output ms/10>"));
            }
           delete splitter;
           splitter = NULL;
@@ -384,8 +355,8 @@ void doSerialCommand(String readString)
             int value = splitter->getItemAtIndex(2).toInt();
 
 #ifdef DEBUG_MSG
-            Serial.print(F("Adress = ")); Serial.println(addr);
-            Serial.print(F("Value = ")); Serial.println(value);
+            MYSERIAL.print(F("Adress = ")); MYSERIAL.println(addr);
+            MYSERIAL.print(F("Value = ")); MYSERIAL.println(value);
 #endif
             if ( addr >= 0 && addr <= 15 )
              {
@@ -393,12 +364,12 @@ void doSerialCommand(String readString)
              }
             else
              {
-              Serial.println(F("Invalid output: should be 0 to 15"));
+              MYSERIAL.println(F("Invalid output: should be 0 to 15"));
              }
            }
           else
            {
-            Serial.println(F("Invalid command: should be <N output ms/10>"));
+            MYSERIAL.println(F("Invalid command: should be <N output ms/10>"));
            }
           delete splitter;
           splitter = NULL;
@@ -423,8 +394,8 @@ void doSerialCommand(String readString)
             int value = splitter->getItemAtIndex(2).toInt();
 
 #ifdef DEBUG_MSG
-            Serial.print(F("Adress = ")); Serial.println(addr);
-            Serial.print(F("Value = ")); Serial.println(value);
+            MYSERIAL.print(F("Adress = ")); MYSERIAL.println(addr);
+            MYSERIAL.print(F("Value = ")); MYSERIAL.println(value);
 #endif
             if ( addr >= 0 && addr <= 15 )
              {
@@ -432,12 +403,12 @@ void doSerialCommand(String readString)
              }
             else
              {
-              Serial.println(F("Invalid output: should be 0 to 15"));
+              MYSERIAL.println(F("Invalid output: should be 0 to 15"));
              }
            }
           else
            {
-            Serial.println(F("Invalid command: should be <O output S/10>"));
+            MYSERIAL.println(F("Invalid command: should be <O output S/10>"));
            }
           delete splitter;
           splitter = NULL;
@@ -468,8 +439,8 @@ void doSerialCommand(String readString)
             int value = splitter->getItemAtIndex(2).toInt();
 
 #ifdef DEBUG_MSG
-            Serial.print(F("Adress = ")); Serial.println(addr);
-            Serial.print(F("Value = ")); Serial.println(value);
+            MYSERIAL.print(F("Adress = ")); MYSERIAL.println(addr);
+            MYSERIAL.print(F("Value = ")); MYSERIAL.println(value);
 #endif
             if ( addr >= 0 && addr <= 15 )
              {
@@ -479,12 +450,12 @@ void doSerialCommand(String readString)
              }
             else
              {
-              Serial.println(F("Invalid output: should be 0 to 15"));
+              MYSERIAL.println(F("Invalid output: should be 0 to 15"));
              }
            }
           else
            {
-            Serial.println(F("Invalid command: should be <P output [0:1:2:4]>"));
+            MYSERIAL.println(F("Invalid command: should be <P output [0:1:2:4]>"));
            }
           delete splitter;
           splitter = NULL;
@@ -492,17 +463,17 @@ void doSerialCommand(String readString)
 
         if (readString.startsWith("<X"))
          {
-          Serial.println(F("Serial number is:"));
+          MYSERIAL.println(F("Serial number is:"));
 
-          Serial.println(Dcc.getCV(CV_ACCESSORY_DECODER_SERIAL_LSB) + (Dcc.getCV(CV_ACCESSORY_DECODER_SERIAL_MSB) * 256 ));
+          MYSERIAL.println(Dcc.getCV(CV_ACCESSORY_DECODER_SERIAL_LSB) + (Dcc.getCV(CV_ACCESSORY_DECODER_SERIAL_MSB) * 256 ));
 
-          Serial.println("");
+          MYSERIAL.println("");
 
          }
        }
       else
        {
-        Serial.println(F("ERROR: Unknown command"));
+        MYSERIAL.println(F("ERROR: Unknown command"));
        }
      }
    }
@@ -528,14 +499,14 @@ void initPinPulser(void)
     servoPosition[i]  = Dcc.getCV( CV_USER_BASE_ADDRESS + 4 + ( i * CV_PER_OUTPUT ) ) * 10;
 
 #ifdef DEBUG_MSG
-    Serial.print(F(" i : "));Serial.print(i);
-    Serial.print(F(" servoMin : "));Serial.print(servoMin[i]);
-    Serial.print(F(" servoMax : "));Serial.println(servoMax[i]);
+    MYSERIAL.print(F(" i : "));MYSERIAL.print(i);
+    MYSERIAL.print(F(" servoMin : "));MYSERIAL.print(servoMin[i]);
+    MYSERIAL.print(F(" servoMax : "));MYSERIAL.println(servoMax[i]);
 #endif
 
   }
 
-  Serial.print(F(" DCC Turnout Base Address: ")); Serial.println(BaseTurnoutAddress, DEC);
+  MYSERIAL.print(F(" DCC Turnout Base Address: ")); MYSERIAL.println(BaseTurnoutAddress, DEC);
 
 // Init the PinPulser with the new settings 
 #ifdef USE_SHIFT_REGISTER
@@ -547,6 +518,9 @@ void initPinPulser(void)
   pinPulser.printArrays();
  }
 
+
+
+
 /*
  *  DCC functions
 */
@@ -556,12 +530,12 @@ void initPinPulser(void)
 void notifyDccAccTurnoutOutput( uint16_t Addr, uint8_t Direction, uint8_t OutputPower )
  {
 #ifdef  NOTIFY_TURNOUT_MSG
-  Serial.print("notifyDccAccTurnoutOutput: Turnout: ") ;
-  Serial.print(Addr,DEC) ;
-  Serial.print(" Direction: ");
-  Serial.print(Direction ? "Thrown" : "Closed") ;
-  Serial.print(" Output: ");
-  Serial.println(OutputPower ? "On" : "Off") ;
+  MYSERIAL.print("notifyDccAccTurnoutOutput: Turnout: ") ;
+  MYSERIAL.print(Addr,DEC) ;
+  MYSERIAL.print(" Direction: ");
+  MYSERIAL.print(Direction ? "Thrown" : "Closed") ;
+  MYSERIAL.print(" Output: ");
+  MYSERIAL.println(OutputPower ? "On" : "Off") ;
 #endif
 
 // check to see if in learning mode and update address
@@ -575,10 +549,10 @@ void notifyDccAccTurnoutOutput( uint16_t Addr, uint8_t Direction, uint8_t Output
     byte H = (Addr + 3) / 1024;
 
 #ifdef DEBUG_MSG
-    Serial.println("");
-    Serial.print(F("Value = ")); Serial.println(Addr,DEC);
-    Serial.print(F(" H = ")); Serial.println(H,DEC);
-    Serial.print(F(" L = ")); Serial.println(L,DEC);
+    MYSERIAL.println("");
+    MYSERIAL.print(F("Value = ")); MYSERIAL.println(Addr,DEC);
+    MYSERIAL.print(F(" H = ")); MYSERIAL.println(H,DEC);
+    MYSERIAL.print(F(" L = ")); MYSERIAL.println(L,DEC);
 #endif
                   
     Dcc.setCV(CV_ACCESSORY_DECODER_ADDRESS_MSB, H);
@@ -603,16 +577,16 @@ void notifyDccAccTurnoutOutput( uint16_t Addr, uint8_t Direction, uint8_t Output
       pinPulser.addPin(pinIndex);
       
 #ifdef  NOTIFY_TURNOUT_MSG
-      Serial.print(" Pin Index: ");
-      Serial.print(pinIndex,DEC);
-      Serial.print(" Pin: ");
-      Serial.println(outputs[pinIndex / 2],DEC);
+      MYSERIAL.print(" Pin Index: ");
+      MYSERIAL.print(pinIndex,DEC);
+      MYSERIAL.print(" Pin: ");
+      MYSERIAL.println(outputs[pinIndex / 2],DEC);
 #endif
 
      }
    }
 #ifdef  NOTIFY_TURNOUT_MSG
-  Serial.println();
+  MYSERIAL.println();
 #endif
  }
 
@@ -620,10 +594,10 @@ void notifyDccAccTurnoutOutput( uint16_t Addr, uint8_t Direction, uint8_t Output
 void notifyCVChange(uint16_t CV, uint8_t Value)
  {
 #ifdef DEBUG_MSG
-  Serial.print("notifyCVChange: CV: ") ;
-  Serial.print(CV,DEC) ;
-  Serial.print(" Value: ") ;
-  Serial.println(Value, DEC) ;
+  MYSERIAL.print("notifyCVChange: CV: ") ;
+  MYSERIAL.print(CV,DEC) ;
+  MYSERIAL.print(" Value: ") ;
+  MYSERIAL.println(Value, DEC) ;
 #endif  
 
   Value = Value;  // Silence Compiler Warnings...
@@ -647,7 +621,7 @@ void notifyCVResetFactoryDefault()
   FactoryDefaultCVIndex = sizeof(FactoryDefaultCVs)/sizeof(CVPair);
 
 #ifdef ENABLE_SERIAL
-  Serial.println("Resetting Factory Default");
+  MYSERIAL.println("Resetting Factory Default");
 #endif
 
 };
@@ -659,7 +633,7 @@ void notifyCVResetFactoryDefault()
 void notifyCVAck(void)
  {
 #ifdef DEBUG_MSG
-  Serial.println("notifyCVAck") ;
+  MYSERIAL.println("notifyCVAck") ;
 #endif
   // Configure the DCC CV Programing ACK pin for an output
   pinMode( ENABLE_DCC_ACK, OUTPUT );
@@ -671,16 +645,20 @@ void notifyCVAck(void)
  }
 #endif
 
-#ifdef  NOTIFY_DCC_MSG
+//#ifdef  NOTIFY_DCC_MSG
 void notifyDccMsg( DCC_MSG * Msg)
  {
-  Serial.print("notifyDccMsg: ") ;
+  MYSERIAL.print("notifyDccMsg: ") ;
   for(uint8_t i = 0; i < Msg->Size; i++)
   {
-    Serial.print(Msg->Data[i], HEX);
-    Serial.write(' ');
+    MYSERIAL.print(Msg->Data[i], HEX);
+    MYSERIAL.write(' ');
   }
-  Serial.println();
+  MYSERIAL.println();
  }
-#endif
+//#endif
+
+
+#endif  // FUNCTIONS_H
+
 

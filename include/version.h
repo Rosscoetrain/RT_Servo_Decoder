@@ -1,5 +1,5 @@
 /*
- *  © 2023 Ross Scanlon
+ *  © 2023, 2026 Ross Scanlon
  *
  *  This is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,8 +18,11 @@
 #ifndef VERSION_H
 #define VERSION_H
 
-#define VERSION "1.0.0"
+#define VERSION "1.1.0"
 
+// 1.1.0  - rename to RT_Servo_Decoder
+//        - add service mode and POM CV programming
+//        - clean up code and remove ESP32 (not happening)
 // 1.0.0  - first production release
 // 0.0.6  - add <D> reset to factory defaults serial command
 // 0.0.5  - use bit write instead of SPI to control 74HC595 shift registers

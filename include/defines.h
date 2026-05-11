@@ -32,8 +32,13 @@
 // after uploading comment out the line and upload again for normal operation
 //#define FORCE_RESET_FACTORY_DEFAULT_CV
 
-// To enable serial communications via USB uncomment the following.
+// To disable serial communications via USB comment out the following.
 #define ENABLE_SERIAL
+
+#ifdef ENABLE_SERIAL
+
+// this is the Serial to use
+#define MYSERIAL Serial
 
 // You can print every DCC packet by un-commenting the line below
 //#define NOTIFY_DCC_MSG
@@ -46,6 +51,7 @@
 
 // level of debug messages 0 - 4
 //#define DEBUG 4
+#endif
 
 // Un-Comment the line below to include learning function
 #define LEARNING
@@ -54,26 +60,9 @@
 #define USE_SHIFT_REGISTER
 
 // Un-Comment the lines below to Enable DCC ACK for Service Mode Programming Read CV Capablilty 
-#ifdef ARDUINO_ARCH_ESP32
-#define ENABLE_DCC_ACK  23  // This is IO23 on ESP32 WROOM   
-#else
 #define ENABLE_DCC_ACK  15  // This is A1 on the Iowa Scaled Engineering ARD-DCCSHIELD DCC Shield
-#endif
 
-// Un-Comment the line below if this firemware is being used on the RT_Pulse_8_HP_SMT with Arduino Nano board.
-//#define NANO_SMT_BOARD
-
-// Un-Comment the line below if this firemware is being used on the RT_Pulse_8_HP_SMT with ATMega328p TQFP-32 board.
-//#ifdef ATmega328P_TQFP32
-//#define ATMEGA328P_SMT_BOARD
-//#endif
-
-// Define the Arduino input Pin number for the DCC Signal 
-#ifdef ARDUINO_ARCH_ESP32
-#define DCC_PIN     22
-#else
 #define DCC_PIN     2
-#endif
 
 #define NUM_TURNOUTS 16                // Set Number of Turnouts (Pairs of Pins)
 
