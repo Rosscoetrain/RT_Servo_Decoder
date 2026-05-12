@@ -251,7 +251,7 @@ void loop()
      {
       Dcc.setCV(CV_USER_BASE_ADDRESS + 4 + (i * CV_PER_OUTPUT), pinPulser1->getServoPosition(i) / 10);
 #ifdef DEBUG_MSG
-      MYSERIAL.print("i: ");MYSERIAL.print(i);MYSERIAL.print(" pos: ");MYSERIAL.println(pinPulser.getServoPosition(i));
+      MYSERIAL.print("i: ");MYSERIAL.print(i);MYSERIAL.print(" pos: ");MYSERIAL.println(pinPulser1->getServoPosition(i));
 #endif
      }
     pinPulser1->setUpdatePosition();
@@ -265,7 +265,7 @@ void loop()
        {
         Dcc.setCV(CV_USER_BASE_ADDRESS_2 + 4 + (i * CV_PER_OUTPUT), pinPulser2->getServoPosition(i) / 10);
 #ifdef DEBUG_MSG
-        MYSERIAL.print("i: ");MYSERIAL.print(i);MYSERIAL.print(" pos: ");MYSERIAL.println(pinPulser.getServoPosition(i));
+        MYSERIAL.print("i: ");MYSERIAL.print(i);MYSERIAL.print(" pos: ");MYSERIAL.println(pinPulser2->getServoPosition(i));
 #endif
        }
       pinPulser2->setUpdatePosition();

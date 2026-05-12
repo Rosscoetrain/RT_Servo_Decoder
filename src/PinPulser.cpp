@@ -51,10 +51,14 @@ void PinPulser::init(uint16_t servoMin_[], uint16_t servoMax_[], uint8_t servoTi
   this->ledOutput = 0;
 
   //Initialize array
-  this->registerState = new byte[this->numOfRegisters];
-  for (int i = 0; i < this->numOfRegisters; i++) {
-    this->registerState[i] = 0;
-  }
+  if (this->bank == 0)
+   {
+    this->registerState = new byte[this->numOfRegisters];
+    for (int i = 0; i < this->numOfRegisters; i++)
+     {
+      this->registerState[i] = 0;
+     }
+   }
 
 
 #else
@@ -93,7 +97,10 @@ void PinPulser::init(uint16_t servoMin_[], uint16_t servoMax_[], uint8_t servoTi
     if (this->servoPosition[i] == this->servoMin[i])
      {
 #ifdef USE_SHIFT_REGISTER
-    ledOutput &=  ~((uint16_t)1 << i);
+      if (this->bank == 0)
+       {
+        ledOutput &=  ~((uint16_t)1 << i);
+       }
 
 #if DEBUG == 4
     MYSERIAL.print(" closed : ");
@@ -111,7 +118,10 @@ void PinPulser::init(uint16_t servoMin_[], uint16_t servoMax_[], uint8_t servoTi
     else
      {
 #ifdef USE_SHIFT_REGISTER
-    ledOutput |= ((uint16_t)1 << i);
+      if (this->bank == 0)
+       {
+        ledOutput |= ((uint16_t)1 << i);
+       }
 
 #if DEBUG == 4
     MYSERIAL.print(" thrown : ");
@@ -461,8 +471,9 @@ void PinPulser::setUpdatePosition()
 #ifdef USE_SHIFT_REGISTER
 void PinPulser::outputLeds(uint16_t leds)
  {
+// TODO this need additional hardware to use more leds with an addon PCA9685
+  if (this->bank != 0) return;
 #if DEBUG == 4
-
   MYSERIAL.println("outputLeds");
   MYSERIAL.print("ledOutput : ");
   MYSERIAL.println(leds, BIN);
@@ -470,7 +481,6 @@ void PinPulser::outputLeds(uint16_t leds)
   MYSERIAL.print(loByte, BIN);
   MYSERIAL.print(" hiByte : ");
   MYSERIAL.println(hiByte, BIN);
-
 #endif
 
 //  digitalWrite(LATCH_PIN, LOW);
@@ -488,18 +498,15 @@ void PinPulser::outputLeds(uint16_t leds)
   for (int i = 0; i < 16; i++)
     {
       regWrite(i, (leds >> i) & 0x01);
-
 //      MYSERIAL.print("i : ");
 //      MYSERIAL.print(i);
 //      MYSERIAL.print(" leds : ");
 //      MYSERIAL.print(leds, BIN);
 //      MYSERIAL.print(" output : ");
 //      MYSERIAL.println((leds >> i) & 0x01, BIN);
-
     }
 
 //  digitalWrite(LATCH_PIN, HIGH);
-
 #if DEBUG == 4
   MYSERIAL.println("Sent");
 #endif

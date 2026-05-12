@@ -357,7 +357,8 @@ void doSerialCommand(String readString)
             MYSERIAL.print(F("Adress = ")); MYSERIAL.println(addr);
             MYSERIAL.print(F("Value = ")); MYSERIAL.println(value);
 #endif
-            if ( addr >= 0 && addr <= 15 )
+//            if ( addr >= 0 && addr <= 15 )
+            if ( addr >= 0 && addr <= 31 )
              {
               Dcc.setCV(CV_USER_BASE_ADDRESS + (addr) * CV_PER_OUTPUT, value);
              }
@@ -396,7 +397,8 @@ void doSerialCommand(String readString)
             MYSERIAL.print(F("Adress = ")); MYSERIAL.println(addr);
             MYSERIAL.print(F("Value = ")); MYSERIAL.println(value);
 #endif
-            if ( addr >= 0 && addr <= 15 )
+//            if ( addr >= 0 && addr <= 15 )
+            if ( addr >= 0 && addr <= 31 )
              {
               Dcc.setCV(CV_USER_BASE_ADDRESS + 1 + (addr) * CV_PER_OUTPUT, value);
              }
@@ -435,7 +437,8 @@ void doSerialCommand(String readString)
             MYSERIAL.print(F("Adress = ")); MYSERIAL.println(addr);
             MYSERIAL.print(F("Value = ")); MYSERIAL.println(value);
 #endif
-            if ( addr >= 0 && addr <= 15 )
+//            if ( addr >= 0 && addr <= 15 )
+            if ( addr >= 0 && addr <= 31 )
              {
               Dcc.setCV(CV_USER_BASE_ADDRESS + 2 + (addr) * CV_PER_OUTPUT, value);
              }
@@ -480,15 +483,16 @@ void doSerialCommand(String readString)
             MYSERIAL.print(F("Adress = ")); MYSERIAL.println(addr);
             MYSERIAL.print(F("Value = ")); MYSERIAL.println(value);
 #endif
-            if ( addr >= 0 && addr <= 15 )
+//            if ( addr >= 0 && addr <= 15 )
+            if ( addr >= 0 && addr <= 31 )
              {
 
-              Dcc.setCV(CV_USER_BASE_ADDRESS + 3 + (addr) * CV_PER_OUTPUT, value);
+              Dcc.setCV(CV_USER_BASE_ADDRESS + 3 + (addr * CV_PER_OUTPUT), value);
 
              }
             else
              {
-              MYSERIAL.println(F("Invalid output: should be 0 to 15"));
+              MYSERIAL.println(F("Invalid output: should be 0 to 31"));
              }
            }
           else
@@ -545,31 +549,34 @@ void initPinPulser(void)
       MYSERIAL.print(F(" servoMax : "));MYSERIAL.println(servoMax[i]);
 #endif
      }
+    pinPulser1->init(servoMin, servoMax, servoTime, servoConfig, servoPosition, numberOfTurnouts1, pwm1, 1);
+    pinPulser1->printArrays();
    }
-  else
+
+  if (pinPulser2)
    {
-    if (pinPulser2)
+    for(uint8_t i = 0; i < numberOfTurnouts2; i++)
      {
-      for(uint8_t i = 0; i < numberOfTurnouts2; i++)
-       {
-        servoMin[i] = Dcc.getCV( CV_USER_BASE_ADDRESS_2 + ( i * CV_PER_OUTPUT ) ) * 10;
-        servoMax[i] = Dcc.getCV( CV_USER_BASE_ADDRESS_2 + 1 + ( i * CV_PER_OUTPUT ) ) * 10;
-        servoTime[i] = Dcc.getCV( CV_USER_BASE_ADDRESS_2 + 2 + ( i * CV_PER_OUTPUT ) );
-        servoConfig[i]  = Dcc.getCV( CV_USER_BASE_ADDRESS_2 + 3 + ( i * CV_PER_OUTPUT ) );
-        servoPosition[i]  = Dcc.getCV( CV_USER_BASE_ADDRESS_2 + 4 + ( i * CV_PER_OUTPUT ) ) * 10;
+      servoMin[i] = Dcc.getCV( CV_USER_BASE_ADDRESS_2 + ( i * CV_PER_OUTPUT ) ) * 10;
+      servoMax[i] = Dcc.getCV( CV_USER_BASE_ADDRESS_2 + 1 + ( i * CV_PER_OUTPUT ) ) * 10;
+      servoTime[i] = Dcc.getCV( CV_USER_BASE_ADDRESS_2 + 2 + ( i * CV_PER_OUTPUT ) );
+      servoConfig[i]  = Dcc.getCV( CV_USER_BASE_ADDRESS_2 + 3 + ( i * CV_PER_OUTPUT ) );
+      servoPosition[i]  = Dcc.getCV( CV_USER_BASE_ADDRESS_2 + 4 + ( i * CV_PER_OUTPUT ) ) * 10;
+     }
+    pinPulser2->init(servoMin, servoMax, servoTime, servoConfig, servoPosition, numberOfTurnouts2, pwm2, 2);
+    pinPulser2->printArrays();
 
 #ifdef DEBUG_MSG
-        MYSERIAL.print(F("ipp : "));
-        MYSERIAL.print(F(" i : "));MYSERIAL.print(i);
-        MYSERIAL.print(F(" servoMin : "));MYSERIAL.print(servoMin[i]);
-        MYSERIAL.print(F(" servoMax : "));MYSERIAL.println(servoMax[i]);
+      MYSERIAL.print(F("ipp : "));
+      MYSERIAL.print(F(" i : "));MYSERIAL.print(i);
+      MYSERIAL.print(F(" servoMin : "));MYSERIAL.print(servoMin[i]);
+      MYSERIAL.print(F(" servoMax : "));MYSERIAL.println(servoMax[i]);
 #endif
-       }
-     }
    }
 
   MYSERIAL.print(F(" DCC Turnout Base Address: ")); MYSERIAL.println(BaseTurnoutAddress, DEC);
 
+/*
 // Init the PinPulser with the new settings 
 #ifdef USE_SHIFT_REGISTER
 //  pinPulser.init(servoMin, servoMax, servoTime, servoConfig, servoPosition, &pwm);
@@ -581,14 +588,15 @@ void initPinPulser(void)
 #else
   pinPulser.init(servoMin, servoMax, servoTime, servoConfig, servoPosition, outputs, &pwm);
 #endif
-
+*/
+/*
   pinPulser1->printArrays();
 
   if (pinPulser2)
    {
     pinPulser2->printArrays();
    }
-
+*/
  }
 
 
@@ -639,27 +647,45 @@ void notifyDccAccTurnoutOutput( uint16_t Addr, uint8_t Direction, uint8_t Output
     if(( Addr >= BaseTurnoutAddress ) && ( Addr < (BaseTurnoutAddress + numberOfTurnouts1)) && OutputPower )
      {
       uint16_t pinIndex = ( (Addr - BaseTurnoutAddress) << 1 ) + Direction ;
-
 /*
  *   To get close or throw for addPin
  *   pinIndex * 2 + Direction
  *   to decode in PinPulser direction = pinIndex % 2, servo = int(pinIndex / 2)
  * 
 */
-
       pinPulser1->addPin(pinIndex);
       
 #ifdef  NOTIFY_TURNOUT_MSG
       MYSERIAL.print(" Pin Index: ");
       MYSERIAL.print(pinIndex,DEC);
-      MYSERIAL.print(" Pin: ");
-      MYSERIAL.println(outputs[pinIndex / 2],DEC);
+//      MYSERIAL.print(" Pin: ");
+//      MYSERIAL.println(outputs[pinIndex / 2],DEC);
 #endif
-
      }
 
 // TODO pinPulser2->addPin(pinIndex);
+    if (pinPulser2)
+     {
+      if(( Addr >= BaseTurnoutAddress + numberOfTurnouts1 ) && ( Addr < (BaseTurnoutAddress + numberOfTurnouts1 + numberOfTurnouts2)) && OutputPower )
+       {
+        uint16_t pinIndex = ( (Addr - BaseTurnoutAddress - numberOfTurnouts1) << 1 ) + Direction ;
+/*
+ *   To get close or throw for addPin
+ *   pinIndex * 2 + Direction
+ *   to decode in PinPulser direction = pinIndex % 2, servo = int(pinIndex / 2)
+ * 
+*/
+       pinPulser2->addPin(pinIndex);
+      
+#ifdef  NOTIFY_TURNOUT_MSG
+      MYSERIAL.print(" Pin Index: ");
+      MYSERIAL.print(pinIndex,DEC);
+//      MYSERIAL.print(" Pin: ");
+//      MYSERIAL.println(outputs[pinIndex / 2],DEC);
+#endif
+      }
 
+     }
 
    }
 #ifdef  NOTIFY_TURNOUT_MSG

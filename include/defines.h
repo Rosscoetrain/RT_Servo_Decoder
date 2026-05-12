@@ -50,7 +50,7 @@
 //#define DEBUG_MSG
 
 // level of debug messages 0 - 4
-//#define DEBUG 2
+//#define DEBUG 3
 
 #endif
 
@@ -77,7 +77,7 @@
 
 #define CV_PER_OUTPUT 5                           // how many CV's are used per decoder output
 #define CV_USER_BASE_ADDRESS 33                   // base of user assigned CV's
-#define CV_USER_BASE_ADDRESS_2 33 + 16 * CV_PER_OUTPUT                   // base of CV's for pwm2
+#define CV_USER_BASE_ADDRESS_2 33 + (16 * CV_PER_OUTPUT)                   // base of CV's for pwm2
 
 /*
  * servo defines
