@@ -73,118 +73,8 @@ struct CVPair
  */
 
 
-
-CVPair FactoryDefaultCVs [] =
-{
-  {CV_ACCESSORY_DECODER_ADDRESS_LSB, DEFAULT_ACCESSORY_DECODER_ADDRESS & 0xFF},
-  {CV_ACCESSORY_DECODER_ADDRESS_MSB, DEFAULT_ACCESSORY_DECODER_ADDRESS >> 8},
-  {CV_ACCESSORY_DECODER_SERVO_MOVE_TIME, SERVO_TIME},
-  {CV_29_CONFIG, CV29_ACCESSORY_DECODER},
-
-
-  {33, SERVO_MIN},
-  {34, SERVO_MAX},
-  {35, SERVO_TIME},
-  {36, SERVO_CONFIG},
-  {37, SERVO_MIN},
-
-  {38, SERVO_MIN},
-  {39, SERVO_MAX},
-  {40, SERVO_TIME},
-  {41, SERVO_CONFIG},
-  {42, SERVO_MIN},
-  
-  {43, SERVO_MIN},
-  {44, SERVO_MAX},
-  {45, SERVO_TIME},
-  {46, SERVO_CONFIG},
-  {47, SERVO_MIN},
-  
-  {48, SERVO_MIN},
-  {49, SERVO_MAX},
-  {50, SERVO_TIME},
-  {51, SERVO_CONFIG},
-  {52, SERVO_MIN},
-  
-  {53, SERVO_MIN},
-  {54, SERVO_MAX},
-  {55, SERVO_TIME},
-  {56, SERVO_CONFIG},
-  {57, SERVO_MIN},
-  
-  {58, SERVO_MIN},
-  {59, SERVO_MAX},
-  {60, SERVO_TIME},
-  {61, SERVO_CONFIG},
-  {62, SERVO_MIN},
-  
-  {63, SERVO_MIN},
-  {64, SERVO_MAX},
-  {65, SERVO_TIME},
-  {66, SERVO_CONFIG},
-  {67, SERVO_MIN},
-  
-  {68, SERVO_MIN},
-  {69, SERVO_MAX},
-  {70, SERVO_TIME},
-  {71, SERVO_CONFIG},
-  {72, SERVO_MIN},
-  
-  {73, SERVO_MIN},
-  {74, SERVO_MAX},
-  {75, SERVO_TIME},
-  {76, SERVO_CONFIG},
-  {77, SERVO_MIN},
-  
-  {78, SERVO_MIN},
-  {79, SERVO_MAX},
-  {80, SERVO_TIME},
-  {81, SERVO_CONFIG},
-  {82, SERVO_MIN},
-  
-  {83, SERVO_MIN},
-  {84, SERVO_MAX},
-  {85, SERVO_TIME},
-  {86, SERVO_CONFIG},
-  {87, SERVO_MIN},
-  
-  {88, SERVO_MIN},
-  {89, SERVO_MAX},
-  {90, SERVO_TIME},
-  {91, SERVO_CONFIG},
-  {92, SERVO_MIN},
-  
-  {93, SERVO_MIN},
-  {94, SERVO_MAX},
-  {95, SERVO_TIME},
-  {96, SERVO_CONFIG},
-  {97, SERVO_MIN},
-  
-  {98, SERVO_MIN},
-  {99, SERVO_MAX},
-  {100, SERVO_TIME},
-  {101, SERVO_CONFIG},
-  {102, SERVO_MIN},
-  
-  {103, SERVO_MIN},
-  {104, SERVO_MAX},
-  {105, SERVO_TIME},
-  {106, SERVO_CONFIG},
-  {107, SERVO_MIN},
-  
-  {108, SERVO_MIN},
-  {109, SERVO_MAX},
-  {110, SERVO_TIME},
-  {111, SERVO_CONFIG},
-  {112, SERVO_MIN},
-
-
-  {CV_ACCESSORY_DECODER_SERIAL_LSB, uint8_t(SERIAL_NUMBER - (SERIAL_NUMBER * 256))},
-  {CV_ACCESSORY_DECODER_SERIAL_MSB, uint8_t(SERIAL_NUMBER / 256)},
-  
-
-};
-
+/*
+*/
 
 
 uint8_t FactoryDefaultCVIndex = 0;
@@ -200,10 +90,16 @@ byte outputs[] = { 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 1, 0, 13, 14, 16, 17};
 
 NmraDcc  Dcc ;
 DCC_MSG  Packet ;
-PinPulser pinPulser;
+
+
+//PinPulser pinPulser;
+PinPulser *pinPulser1 = NULL;
+PinPulser *pinPulser2 = NULL;
 
 uint16_t BaseTurnoutAddress;
 
+uint8_t numberOfTurnouts1 = NUM_TURNOUTS;
+uint8_t numberOfTurnouts2 = NUM_TURNOUTS;
 
 /*
  * Rosscoe Train functions and variables
@@ -232,8 +128,15 @@ static uint8_t servoConfig[NUM_TURNOUTS] = {};
 char* version;
 uint8_t versionBuffer[3];
 
+
+
 // called this way, it uses the default address 0x40
-Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
+//Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
+
+// Define pointers (initialize to NULL)
+Adafruit_PWMServoDriver* pwm1 = NULL;
+Adafruit_PWMServoDriver* pwm2 = NULL;
+
 
 #endif
 

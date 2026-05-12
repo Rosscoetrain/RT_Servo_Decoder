@@ -1,0 +1,40 @@
+#include <Wire.h>
+#include <Adafruit_PWMServoDriver.h>
+
+// Initialize pointers to NULL
+Adafruit_PWMServoDriver* pwm1 = NULL;
+Adafruit_PWMServoDriver* pwm2 = NULL;
+
+void setup() {
+  Serial.begin(115200);
+  Wire.begin();
+
+  // Test and init 0x40
+  Wire.beginTransmission(0x40);
+  if (Wire.endTransmission() == 0) {
+    Serial.println("PCA9685 at 0x40 detected.");
+    pwm1 = new Adafruit_PWMServoDriver(0x40);
+    pwm1->begin();
+    pwm1->setPWMFreq(60);
+  }
+
+  // Test and init 0x41
+  Wire.beginTransmission(0x41);
+  if (Wire.endTransmission() == 0) {
+    Serial.println("PCA9685 at 0x41 detected.");
+    pwm2 = new Adafruit_PWMServoDriver(0x41);
+    pwm2->begin();
+    pwm2->setPWMFreq(60);
+  }
+}
+
+void loop() {
+  // Safe usage: check if pointer exists before calling
+  if (pwm1) {
+    pwm1->setPWM(0, 0, 2048);
+  }
+
+  if (pwm2) {
+    pwm2->setPWM(0, 0, 2048);
+  }
+}

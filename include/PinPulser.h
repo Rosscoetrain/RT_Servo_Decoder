@@ -21,9 +21,10 @@
 #define PINPUSHER_H
 
 #include <Arduino.h>
-#include "defines.h"
 
 #include <Adafruit_PWMServoDriver.h>
+
+#include "defines.h"
 
 // this is the maximum number of output pins
 
@@ -39,14 +40,15 @@ enum PP_State
 class PinPulser
  {
   private:
-//    uint16_t      cduRechargeMs;
     PP_State      state = PP_IDLE;
     unsigned long targetMs = 0;
     unsigned long moveMs = 0;
     uint16_t moveCount = 0;
 
     uint8_t       pinQueue[PIN_PULSER_MAX_PINS + 1];
-    uint8_t       servoState[NUM_OF_SERVOS];
+    uint8_t       servoState[NUM_TURNOUTS * 2];
+
+    uint8_t       numberOfTurnouts;
 
     uint16_t *servoMin;
     uint16_t *servoMax;
@@ -66,6 +68,7 @@ class PinPulser
 
     uint8_t currentConfig;                              // current servo configuration
 
+    uint8_t bank;
 
 #ifdef USE_SHIFT_REGISTER
     uint16_t ledOutput;
@@ -82,8 +85,10 @@ class PinPulser
   public:
 
 #ifdef USE_SHIFT_REGISTER
+//    void init(uint16_t servoMin_[], uint16_t servoMax_[], uint8_t servoTime_[], uint8_t servoConfig_[],
+//              uint16_t servoPosition_[], Adafruit_PWMServoDriver *pwm_);
     void init(uint16_t servoMin_[], uint16_t servoMax_[], uint8_t servoTime_[], uint8_t servoConfig_[],
-              uint16_t servoPosition_[], Adafruit_PWMServoDriver *pwm_);
+              uint16_t servoPosition_[], uint8_t numOfTurnouts_, Adafruit_PWMServoDriver *pwm_, uint8_t bank_);
 #else
     void init(uint16_t servoMin_[], uint16_t servoMax_[], uint8_t servoTime_[], uint8_t servoConfig_[],
               uint16_t servoPosition_[], uint8_t outputs_[], Adafruit_PWMServoDriver *pwm_);

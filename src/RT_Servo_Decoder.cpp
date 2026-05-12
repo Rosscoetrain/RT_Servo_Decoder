@@ -23,6 +23,8 @@
 
 #include <NmraDcc.h>
 
+#include <Wire.h>
+
 #include <Adafruit_PWMServoDriver.h>
 
 #include "PinPulser.h"
@@ -33,6 +35,7 @@
 #include "variables.h"
 
 #include "functions.h"
+
 
 
 void setup()
@@ -64,7 +67,7 @@ void setup()
   Dcc.init( MAN_ID_DIY, DCC_DECODER_VERSION_NUM, FLAGS_OUTPUT_ADDRESS_MODE | FLAGS_DCC_ACCESSORY_DECODER, 0 );
 
 #ifdef ENABLE_SERIAL
-  MYSERIAL.print("Rosscoe Train DCC 8 Turnout Servo Accessory Decoder. ");
+  MYSERIAL.print("Rosscoe Train DCC 16 Servo Accessory Decoder. ");
 
   MYSERIAL.print(F("Version: "));
   MYSERIAL.print(versionBuffer[0]);
@@ -76,8 +79,31 @@ void setup()
   MYSERIAL.println();
 #endif
 
-  pwm.begin();
-  /*
+  Wire.begin();
+
+  // Test and init 0x40
+  Wire.beginTransmission(0x40);
+  if (Wire.endTransmission() == 0) {
+    MYSERIAL.println("PCA9685 at 0x40 detected.");
+    pwm1 = new Adafruit_PWMServoDriver(0x40);
+    pwm1->begin();
+    pwm1->setPWMFreq(SERVO_FREQ);
+    numberOfTurnouts1 = NUM_TURNOUTS;
+    pinPulser1 = new PinPulser();
+  }
+
+  // Test and init 0x41
+  Wire.beginTransmission(0x41);
+  if (Wire.endTransmission() == 0) {
+    MYSERIAL.println("PCA9685 at 0x41 detected.");
+    pwm2 = new Adafruit_PWMServoDriver(0x41);
+    pwm2->begin();
+    pwm2->setPWMFreq(SERVO_FREQ);
+    numberOfTurnouts2 = NUM_TURNOUTS;
+    pinPulser2 = new PinPulser();
+  }
+
+/*
    * In theory the internal oscillator (clock) is 25MHz but it really isn't
    * that precise. You can 'calibrate' this by tweaking this number until
    * you get the PWM update frequency you're expecting!
@@ -93,8 +119,6 @@ void setup()
    * affects the calculations for the PWM update frequency. 
    * Failure to correctly set the int.osc value will cause unexpected PWM results
    */
-  pwm.setOscillatorFrequency(27000000);
-  pwm.setPWMFreq(SERVO_FREQ);  // Analog servos run at ~50 Hz updates
 
 // set pins for shift register to output
 
@@ -151,7 +175,11 @@ void loop()
   Dcc.process();
 
 #ifndef FORCE_RESET_FACTORY_DEFAULT_CV  
-  pinPulser.process();
+  pinPulser1->process();
+  if (pinPulser2)
+   {
+    pinPulser2->process();
+   }
 #endif
 
   if( FactoryDefaultCVIndex && Dcc.isSetCVReady())
@@ -217,19 +245,31 @@ void loop()
    } 
 #endif
 
-  if (pinPulser.getUpdatePosition())
+  if (pinPulser1->getUpdatePosition())
    {
-    for (int i = 0; i < NUM_OF_SERVOS; i++)
+    for (int i = 0; i < numberOfTurnouts1; i++)
      {
-      Dcc.setCV(CV_USER_BASE_ADDRESS + 4 + (i * CV_PER_OUTPUT), pinPulser.getServoPosition(i) / 10);
-
-#ifdef ENABLE_SERIAL
+      Dcc.setCV(CV_USER_BASE_ADDRESS + 4 + (i * CV_PER_OUTPUT), pinPulser1->getServoPosition(i) / 10);
 #ifdef DEBUG_MSG
       MYSERIAL.print("i: ");MYSERIAL.print(i);MYSERIAL.print(" pos: ");MYSERIAL.println(pinPulser.getServoPosition(i));
 #endif
-#endif
-
      }
-    pinPulser.setUpdatePosition();
+    pinPulser1->setUpdatePosition();
    }
+
+  if (pinPulser2)
+   {
+    if (pinPulser2->getUpdatePosition())
+     {
+      for (int i = 0; i < numberOfTurnouts1; i++)
+       {
+        Dcc.setCV(CV_USER_BASE_ADDRESS_2 + 4 + (i * CV_PER_OUTPUT), pinPulser2->getServoPosition(i) / 10);
+#ifdef DEBUG_MSG
+        MYSERIAL.print("i: ");MYSERIAL.print(i);MYSERIAL.print(" pos: ");MYSERIAL.println(pinPulser.getServoPosition(i));
+#endif
+       }
+      pinPulser2->setUpdatePosition();
+     }
+   }
+  
  }

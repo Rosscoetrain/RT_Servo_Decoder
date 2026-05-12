@@ -17,6 +17,8 @@
 
 // Based on the NMRA Pulsed 8 stationary decoder
 
+#include <Arduino.h>
+
 #include "PinPulser.h"
 
 // define empty pin slot value
@@ -24,20 +26,26 @@
 #define PIN_PULSER_SLOT_EMPTY 255
 
 #ifdef USE_SHIFT_REGISTER
+//void PinPulser::init(uint16_t servoMin_[], uint16_t servoMax_[], uint8_t servoTime_[], uint8_t servoConfig_[],
+//                     uint16_t servoPosition_[], Adafruit_PWMServoDriver *pwm_)
 void PinPulser::init(uint16_t servoMin_[], uint16_t servoMax_[], uint8_t servoTime_[], uint8_t servoConfig_[],
-                     uint16_t servoPosition_[], Adafruit_PWMServoDriver *pwm_)
+                     uint16_t servoPosition_[], uint8_t numOfTurnouts_, Adafruit_PWMServoDriver *pwm_, uint8_t bank_)
 #else
 void PinPulser::init(uint16_t servoMin_[], uint16_t servoMax_[], uint8_t servoTime_[], uint8_t servoConfig_[],
                      uint16_t servoPosition_[], uint8_t outputs_[], Adafruit_PWMServoDriver *pwm_)
 #endif
 
  {
+  this->numberOfTurnouts = numOfTurnouts_;
+
   this->servoMin = servoMin_;
   this->servoMax = servoMax_;
   this->servoTime = servoTime_;
 
   this->servoConfig = servoConfig_;
   this->servoPosition = servoPosition_;
+
+  this->bank = bank_ - 1;             // makes it easier to understand in code
 
 #ifdef USE_SHIFT_REGISTER
   this->ledOutput = 0;
@@ -55,7 +63,8 @@ void PinPulser::init(uint16_t servoMin_[], uint16_t servoMax_[], uint8_t servoTi
 
   this->pwm = pwm_;
 
-  for (uint8_t i = 0; i < NUM_OF_SERVOS; i++)
+//  for (uint8_t i = 0; i < NUM_OF_SERVOS; i++)
+  for (uint8_t i = 0; i < numberOfTurnouts; i++)
    {
      this->servoState[i] = 0;                      // 0 = not moving 1 = moving
    }
@@ -64,7 +73,8 @@ void PinPulser::init(uint16_t servoMin_[], uint16_t servoMax_[], uint8_t servoTi
   targetMs = 0;
   memset(pinQueue, PIN_PULSER_SLOT_EMPTY, PIN_PULSER_MAX_PINS + 1);
 
-  for (uint16_t i = 0; i < NUM_OF_SERVOS; i++)
+//  for (uint16_t i = 0; i < NUM_OF_SERVOS; i++)
+  for (uint16_t i = 0; i < numberOfTurnouts; i++)
    {
 
 #if DEBUG == 2
@@ -402,9 +412,13 @@ void PinPulser::setServoStart()
 
 void PinPulser::printArrays()
  {
-  for(uint8_t i = 0; i < NUM_TURNOUTS; i++)
+
+  uint8_t offSet = this->bank * this->numberOfTurnouts;
+
+  for(uint8_t i = 0; i < this->numberOfTurnouts; i++)
    {
-    MYSERIAL.print(F(" output : "));MYSERIAL.print(i);MYSERIAL.print(F(" servoMin : "));MYSERIAL.print(servoMin[i]);
+    MYSERIAL.print(F(" output : "));MYSERIAL.print(i + offSet);
+    MYSERIAL.print(F(" servoMin : "));MYSERIAL.print(servoMin[i]);
     MYSERIAL.print(F(" servoMax : "));MYSERIAL.print(servoMax[i]);
     MYSERIAL.print(F(" servoTime : "));MYSERIAL.print(servoTime[i]);
     MYSERIAL.print(F(" servoConfig : "));MYSERIAL.print(servoConfig[i]);
