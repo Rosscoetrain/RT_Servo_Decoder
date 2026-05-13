@@ -83,42 +83,35 @@ void setup()
 
   // Test and init 0x40
   Wire.beginTransmission(0x40);
-  if (Wire.endTransmission() == 0) {
+  if (Wire.endTransmission() == 0)
+   {
     MYSERIAL.println("PCA9685 at 0x40 detected.");
     pwm1 = new Adafruit_PWMServoDriver(0x40);
     pwm1->begin();
     pwm1->setPWMFreq(SERVO_FREQ);
     numberOfTurnouts1 = NUM_TURNOUTS;
     pinPulser1 = new PinPulser();
-  }
+   }
 
   // Test and init 0x41
   Wire.beginTransmission(0x41);
-  if (Wire.endTransmission() == 0) {
+  if (Wire.endTransmission() == 0)
+   {
     MYSERIAL.println("PCA9685 at 0x41 detected.");
     pwm2 = new Adafruit_PWMServoDriver(0x41);
     pwm2->begin();
     pwm2->setPWMFreq(SERVO_FREQ);
     numberOfTurnouts2 = NUM_TURNOUTS;
     pinPulser2 = new PinPulser();
-  }
+   }
 
-/*
-   * In theory the internal oscillator (clock) is 25MHz but it really isn't
-   * that precise. You can 'calibrate' this by tweaking this number until
-   * you get the PWM update frequency you're expecting!
-   * The int.osc. for the PCA9685 chip is a range between about 23-27MHz and
-   * is used for calculating things like writeMicroseconds()
-   * Analog servos run at ~50 Hz updates, It is importaint to use an
-   * oscilloscope in setting the int.osc frequency for the I2C PCA9685 chip.
-   * 1) Attach the oscilloscope to one of the PWM signal pins and ground on
-   *    the I2C PCA9685 chip you are setting the value for.
-   * 2) Adjust setOscillatorFrequency() until the PWM update frequency is the
-   *    expected value (50Hz for most ESCs)
-   * Setting the value here is specific to each individual I2C PCA9685 chip and
-   * affects the calculations for the PWM update frequency. 
-   * Failure to correctly set the int.osc value will cause unexpected PWM results
-   */
+  // Test and init 0x20
+//  Wire.beginTransmission(0x20);
+//  if (Wire.endTransmission() == 0)
+//   {
+//    MYSERIAL.println("PCA9555 at 0x20 detected.");
+
+//   }
 
 // set pins for shift register to output
 

@@ -20,6 +20,7 @@
 #include <Arduino.h>
 
 #include "PinPulser.h"
+#include "PCA9555.h"
 
 // define empty pin slot value
 
@@ -47,6 +48,26 @@ void PinPulser::init(uint16_t servoMin_[], uint16_t servoMax_[], uint8_t servoTi
 
   this->bank = bank_ - 1;             // makes it easier to understand in code
 
+  if (this->bank == 1)
+   {
+      // Test and init 0x20
+    Wire.beginTransmission(0x20);
+    if (Wire.endTransmission() == 0)
+     {
+      MYSERIAL.println("PCA9555 at 0x20 detected.");
+      this->gpio = new PCA9555(0x20);
+      if (this->gpio)
+       {
+        gpio->init(0x0000);   // set all to outputs
+       }
+     }
+   }
+  else
+   {
+    MYSERIAL.println("No PCA9555 found");
+   }
+
+
 #ifdef USE_SHIFT_REGISTER
   this->ledOutput = 0;
 
@@ -60,10 +81,37 @@ void PinPulser::init(uint16_t servoMin_[], uint16_t servoMax_[], uint8_t servoTi
      }
    }
 
-
 #else
   this->outputs = outputs_;
 #endif
+
+  if (this->bank == 1)
+   {
+      // Test and init 0x20
+    Wire.beginTransmission(0x20);
+    if (Wire.endTransmission() == 0)
+     {
+      MYSERIAL.println("PCA9555 at 0x20 detected.");
+      this->gpio = new PCA9555(0x20);
+      if (this->gpio)
+       {
+        gpio->init(0x0000);   // set all to outputs
+        this->registerState = new byte[this->numOfRegisters];
+        for (int i = 0; i < this->numOfRegisters; i++)
+         {
+          this->registerState[i] = 0;
+         }
+       }
+     }
+   }
+  else
+   {
+    MYSERIAL.println("No PCA9555 found");
+   }
+
+
+
+
 
   this->pwm = pwm_;
 
@@ -97,10 +145,10 @@ void PinPulser::init(uint16_t servoMin_[], uint16_t servoMax_[], uint8_t servoTi
     if (this->servoPosition[i] == this->servoMin[i])
      {
 #ifdef USE_SHIFT_REGISTER
-      if (this->bank == 0)
-       {
-        ledOutput &=  ~((uint16_t)1 << i);
-       }
+//      if (this->bank == 0)
+//       {
+        this->ledOutput &=  ~((uint16_t)1 << i);
+//       }
 
 #if DEBUG == 4
     MYSERIAL.print(" closed : ");
@@ -118,10 +166,10 @@ void PinPulser::init(uint16_t servoMin_[], uint16_t servoMax_[], uint8_t servoTi
     else
      {
 #ifdef USE_SHIFT_REGISTER
-      if (this->bank == 0)
-       {
-        ledOutput |= ((uint16_t)1 << i);
-       }
+//      if (this->bank == 0)
+//       {
+        this->ledOutput |= ((uint16_t)1 << i);
+//       }
 
 #if DEBUG == 4
     MYSERIAL.print(" thrown : ");
@@ -378,11 +426,11 @@ PP_State PinPulser::process(void)
 #ifdef USE_SHIFT_REGISTER
       if (!direction)
        {
-        ledOutput &= ~((uint16_t)1 << currentServo);
+        this->ledOutput &= ~((uint16_t)1 << currentServo);
        }
       else
        {
-        ledOutput |= ((uint16_t)1 << currentServo);
+        this->ledOutput |= ((uint16_t)1 << currentServo);
        }
       this->outputLeds(ledOutput);
 #else
@@ -471,8 +519,6 @@ void PinPulser::setUpdatePosition()
 #ifdef USE_SHIFT_REGISTER
 void PinPulser::outputLeds(uint16_t leds)
  {
-// TODO this need additional hardware to use more leds with an addon PCA9685
-  if (this->bank != 0) return;
 #if DEBUG == 4
   MYSERIAL.println("outputLeds");
   MYSERIAL.print("ledOutput : ");
@@ -482,8 +528,6 @@ void PinPulser::outputLeds(uint16_t leds)
   MYSERIAL.print(" hiByte : ");
   MYSERIAL.println(hiByte, BIN);
 #endif
-
-//  digitalWrite(LATCH_PIN, LOW);
 
 #if DEBUG == 3
   MYSERIAL.print("latch : ");
@@ -495,21 +539,31 @@ void PinPulser::outputLeds(uint16_t leds)
   delay(1000);
 #endif
 
-  for (int i = 0; i < 16; i++)
-    {
-      regWrite(i, (leds >> i) & 0x01);
+  if(this->bank == 0)
+   {
+    for (int i = 0; i < 16; i++)
+      {
+        regWrite(i, (leds >> i) & 0x01);
 //      MYSERIAL.print("i : ");
 //      MYSERIAL.print(i);
 //      MYSERIAL.print(" leds : ");
 //      MYSERIAL.print(leds, BIN);
 //      MYSERIAL.print(" output : ");
 //      MYSERIAL.println((leds >> i) & 0x01, BIN);
-    }
+      }
 
-//  digitalWrite(LATCH_PIN, HIGH);
 #if DEBUG == 4
   MYSERIAL.println("Sent");
 #endif
+   }
+
+// TODO this need additional hardware to use more leds with an addon PCA9555
+//  if (this->bank != 0) return;
+
+  if (this->bank == 1)
+   {
+    gpio->setAll(leds);
+   }
 
  }
 #endif

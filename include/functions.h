@@ -576,27 +576,6 @@ void initPinPulser(void)
 
   MYSERIAL.print(F(" DCC Turnout Base Address: ")); MYSERIAL.println(BaseTurnoutAddress, DEC);
 
-/*
-// Init the PinPulser with the new settings 
-#ifdef USE_SHIFT_REGISTER
-//  pinPulser.init(servoMin, servoMax, servoTime, servoConfig, servoPosition, &pwm);
-  pinPulser1->init(servoMin, servoMax, servoTime, servoConfig, servoPosition, numberOfTurnouts1, pwm1, 1);
-  if ((pinPulser2) && (pwm2))
-   {
-    pinPulser2->init(servoMin, servoMax, servoTime, servoConfig, servoPosition, numberOfTurnouts2, pwm2, 2);
-   }
-#else
-  pinPulser.init(servoMin, servoMax, servoTime, servoConfig, servoPosition, outputs, &pwm);
-#endif
-*/
-/*
-  pinPulser1->printArrays();
-
-  if (pinPulser2)
-   {
-    pinPulser2->printArrays();
-   }
-*/
  }
 
 

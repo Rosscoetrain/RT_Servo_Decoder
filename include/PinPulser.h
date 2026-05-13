@@ -25,6 +25,7 @@
 #include <Adafruit_PWMServoDriver.h>
 
 #include "defines.h"
+#include "PCA9555.h"
 
 // this is the maximum number of output pins
 
@@ -69,6 +70,8 @@ class PinPulser
     uint8_t currentConfig;                              // current servo configuration
 
     uint8_t bank;
+
+    PCA9555 *gpio = NULL;
 
 #ifdef USE_SHIFT_REGISTER
     uint16_t ledOutput;
