@@ -29,12 +29,12 @@
 
 #include "PinPulser.h"
 
-
 #include "version.h"
 
 #include "variables.h"
 
 #include "functions.h"
+#include "functions_dcc.h"
 
 
 
@@ -51,7 +51,7 @@ void setup()
 
   // Setup which External Interrupt, the Pin it's associated with that we're using and enable the Pull-Up
   // Many Arduino Cores now support the digitalPinToInterrupt() function that makes it easier to figure out the
-  // Interrupt Number for the Arduino Pin number, which reduces confusion. 
+  // Interrupt Number for the Arduino Pin number, which reduces confusion.
 
 #ifdef digitalPinToInterrupt
   Dcc.pin(DCC_PIN, 0);
@@ -75,7 +75,7 @@ void setup()
   MYSERIAL.print(versionBuffer[1]);
   MYSERIAL.print(F("."));
   MYSERIAL.println(versionBuffer[2]);
- 
+
   MYSERIAL.println();
 #endif
 
@@ -105,21 +105,13 @@ void setup()
     pinPulser2 = new PinPulser();
    }
 
-  // Test and init 0x20
-//  Wire.beginTransmission(0x20);
-//  if (Wire.endTransmission() == 0)
-//   {
-//    MYSERIAL.println("PCA9555 at 0x20 detected.");
-
-//   }
-
 // set pins for shift register to output
 
 #ifdef USE_SHIFT_REGISTER
   pinMode(LATCH_PIN, OUTPUT);
   pinMode(DATA_PIN, OUTPUT);
   pinMode(CLOCK_PIN, OUTPUT);
- 
+
 #else
 
 // set digital and analog pins defined in outputs to OUTPUT
@@ -138,7 +130,7 @@ void setup()
 #endif
 
 #ifdef FORCE_RESET_FACTORY_DEFAULT_CV
-  notifyCVResetFactoryDefault(); 
+  notifyCVResetFactoryDefault();
 #ifdef ENABLE_SERIAL
   MYSERIAL.println("Resetting CVs to Factory Defaults");
 #endif
@@ -167,7 +159,7 @@ void loop()
   // You MUST call the NmraDcc.process() method frequently from the Arduino loop() function for correct library operation
   Dcc.process();
 
-#ifndef FORCE_RESET_FACTORY_DEFAULT_CV  
+#ifndef FORCE_RESET_FACTORY_DEFAULT_CV
   pinPulser1->process();
   if (pinPulser2)
    {
@@ -177,16 +169,21 @@ void loop()
 
   if( FactoryDefaultCVIndex && Dcc.isSetCVReady())
    {
+
+    FactoryDefaultCVIndex = applyFactoryDefaults();
+/*
     FactoryDefaultCVIndex--; // Decrement first as initially it is the size of the array
     uint16_t cv = FactoryDefaultCVs[FactoryDefaultCVIndex].CV;
     uint8_t val = FactoryDefaultCVs[FactoryDefaultCVIndex].Value;
 #ifdef ENABLE_SERIAL
 #ifdef DEBUG_MSG
     MYSERIAL.print("loop: Write Default CV: "); MYSERIAL.print(cv,DEC); MYSERIAL.print(" Value: "); MYSERIAL.println(val,DEC);
-#endif     
+#endif
 #endif
     Dcc.setCV( cv, val );
-    
+
+*/
+
     if( FactoryDefaultCVIndex == 0)	// Is this the last Default CV to set? if so re-initPinPulser
 	    initPinPulser();
    }
@@ -235,7 +232,7 @@ void loop()
   if (readString.length() >0)
    {
     doSerialCommand(readString);
-   } 
+   }
 #endif
 
   if (pinPulser1->getUpdatePosition())
@@ -264,5 +261,5 @@ void loop()
       pinPulser2->setUpdatePosition();
      }
    }
-  
+
  }

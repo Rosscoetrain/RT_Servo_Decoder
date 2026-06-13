@@ -18,8 +18,9 @@
 #ifndef VERSION_H
 #define VERSION_H
 
-#define VERSION "1.1.0"
+#define VERSION "1.2.0"
 
+// 1.2.0  - include pom programming
 // 1.1.0  - rename to RT_Servo_Decoder
 //        - add service mode and POM CV programming
 //        - clean up code and remove ESP32 (not happening)

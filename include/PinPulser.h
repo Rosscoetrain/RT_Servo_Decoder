@@ -32,7 +32,7 @@
 #define PIN_PULSER_MAX_PINS    16
 
 enum PP_State
- {  
+ {
   PP_IDLE = 0,
   PP_OUTPUT_ON_DELAY,
   PP_MOVING,
@@ -116,4 +116,4 @@ class PinPulser
 
 #endif
 
-  
+

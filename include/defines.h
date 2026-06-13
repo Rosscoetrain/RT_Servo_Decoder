@@ -49,8 +49,8 @@
 // You can also print other Debug Messages uncommenting the line below this prints most debug messages
 //#define DEBUG_MSG
 
-// level of debug messages 0 - 4
-//#define DEBUG 3
+// level of debug messages 0 - 5
+//#define DEBUG 6
 
 #endif
 
@@ -60,7 +60,7 @@
 // Un-Comment the line below to use 74HC595 shift registers for the LEDS
 #define USE_SHIFT_REGISTER
 
-// Un-Comment the lines below to Enable DCC ACK for Service Mode Programming Read CV Capablilty 
+// Un-Comment the lines below to Enable DCC ACK for Service Mode Programming Read CV Capablilty
 #define ENABLE_DCC_ACK  15  // This is A1 on the Iowa Scaled Engineering ARD-DCCSHIELD DCC Shield
 
 #define DCC_PIN     2
@@ -75,15 +75,31 @@
 #define CV_ACCESSORY_DECODER_SERIAL_LSB 255       // lsb for board serial number
 #define CV_ACCESSORY_DECODER_SERIAL_MSB 256       // msb for board serial number
 
+
 #define CV_PER_OUTPUT 5                           // how many CV's are used per decoder output
-#define CV_USER_BASE_ADDRESS 33                   // base of user assigned CV's
-#define CV_USER_BASE_ADDRESS_2 33 + (16 * CV_PER_OUTPUT)                   // base of CV's for pwm2
+
+#define CV_USER_GROUP_1 33                        // CV  33 -  81   maximum  48 CVs
+#define CV_USER_GROUP_2 112                       // CV 112 - 128   maximum  16 CVs
+#define CV_USER_GROUP_3 129                       // CV 129 - 256   maximum 127 CVs
+#define CV_USER_GROUP_4 513                       // CV 513 - 895   maximum 382 CVs
+
+//#define CV_MAX_OUTPUTS (CV_USER_GROUP_4 + NUM_TURNOUTS * CVS_PER_OUTPUT)
+
+#define CV_USER_BASE_ADDRESS CV_USER_GROUP_4                                            // base of user assigned CV's
+#define CV_USER_BASE_ADDRESS_2 CV_USER_GROUP_4 + (NUM_TURNOUTS * CV_PER_OUTPUT)         // base of CV's for pwm2
+
+#define NUM_TOTAL_CVS 4 + (NUM_TURNOUTS * CV_PER_OUTPUT) + (NUM_TURNOUTS * CV_PER_OUTPUT) + 2
+
+#define CV_ACCESSORY_DECODER_SERIAL_LSB 255       // lsb for board serial number
+#define CV_ACCESSORY_DECODER_SERIAL_MSB 256       // msb for board serial number
+
+
 
 /*
  * servo defines
 */
-  
-// Depending on your servo make, the pulse width min and max may vary, you 
+
+// Depending on your servo make, the pulse width min and max may vary, you
 // want these to be as small/large as possible without hitting the hard stop
 // for max range. You'll have to tweak them as necessary to match the servos you
 // have!

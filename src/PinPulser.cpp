@@ -46,27 +46,9 @@ void PinPulser::init(uint16_t servoMin_[], uint16_t servoMax_[], uint8_t servoTi
   this->servoConfig = servoConfig_;
   this->servoPosition = servoPosition_;
 
+//  this->printArrays();
+
   this->bank = bank_ - 1;             // makes it easier to understand in code
-
-  if (this->bank == 1)
-   {
-      // Test and init 0x20
-    Wire.beginTransmission(0x20);
-    if (Wire.endTransmission() == 0)
-     {
-      MYSERIAL.println("PCA9555 at 0x20 detected.");
-      this->gpio = new PCA9555(0x20);
-      if (this->gpio)
-       {
-        gpio->init(0x0000);   // set all to outputs
-       }
-     }
-   }
-  else
-   {
-    MYSERIAL.println("No PCA9555 found");
-   }
-
 
 #ifdef USE_SHIFT_REGISTER
   this->ledOutput = 0;
@@ -103,14 +85,11 @@ void PinPulser::init(uint16_t servoMin_[], uint16_t servoMax_[], uint8_t servoTi
          }
        }
      }
+    else
+     {
+      MYSERIAL.println("No PCA9555 found for leds");
+     }
    }
-  else
-   {
-    MYSERIAL.println("No PCA9555 found");
-   }
-
-
-
 
 
   this->pwm = pwm_;
@@ -166,10 +145,7 @@ void PinPulser::init(uint16_t servoMin_[], uint16_t servoMax_[], uint8_t servoTi
     else
      {
 #ifdef USE_SHIFT_REGISTER
-//      if (this->bank == 0)
-//       {
         this->ledOutput |= ((uint16_t)1 << i);
-//       }
 
 #if DEBUG == 4
     MYSERIAL.print(" thrown : ");
@@ -203,7 +179,7 @@ uint8_t PinPulser::addPin(uint8_t Pin)
 #endif
   for(uint8_t i = 0; i < PIN_PULSER_MAX_PINS; i++)
   {
-    if(pinQueue[i] == Pin)
+    if(this->pinQueue[i] == Pin)
     {
 #ifdef DEBUG_MSG
       MYSERIAL.print(F(" Already in Index: ")); MYSERIAL.println(i,DEC);
@@ -211,16 +187,16 @@ uint8_t PinPulser::addPin(uint8_t Pin)
       return i;
     }
 
-    else if(pinQueue[i] == PIN_PULSER_SLOT_EMPTY)
+    else if(this->pinQueue[i] == PIN_PULSER_SLOT_EMPTY)
     {
 #ifdef DEBUG_MSG
       MYSERIAL.print(F(" pinQueue Index: ")); MYSERIAL.println(i,DEC);
 #endif
-      pinQueue[i] = Pin;
-      process();
+      this->pinQueue[i] = Pin;
+      this->process();
       return i;
     }
-  }  
+  }
 
 #ifdef DEBUG_MSG
   MYSERIAL.println();
@@ -231,48 +207,51 @@ uint8_t PinPulser::addPin(uint8_t Pin)
 PP_State PinPulser::process(void)
  {
   unsigned long now;
-  switch(state)
+  switch(this->state)
   {
   case PP_IDLE:
-    if(pinQueue[0] != PIN_PULSER_SLOT_EMPTY)
-    {
+    if(this->pinQueue[0] != PIN_PULSER_SLOT_EMPTY)
+     {
 
-      updatePosition = 0;
+      this->printArrays();
+
+      this->updatePosition = 0;
 
 #ifdef DEBUG_MSG
       MYSERIAL.print(F(" PinPulser::process: PP_IDLE: Pin: ")); MYSERIAL.println(pinQueue[0],DEC);
 #endif
 
-      currentServo = int(pinQueue[0] / 2);
-      direction = pinQueue[0] % 2;
-      currentConfig = servoConfig[currentServo];
+      this->currentServo = int(this->pinQueue[0] / 2);
+      this->direction = this->pinQueue[0] % 2;
+      this->currentConfig = this->servoConfig[currentServo];
 
 #ifdef DEBUG_MSG
-      MYSERIAL.print(F("Moving servo: ")); MYSERIAL.println(currentServo);
-      MYSERIAL.print(F("Moving servo to: ")); MYSERIAL.println(direction);
-      MYSERIAL.print(F("currentConfig: ")); MYSERIAL.println(currentConfig);
+      MYSERIAL.print(F("Moving servo: ")); MYSERIAL.println(this->currentServo);
+      MYSERIAL.print(F("Moving servo to: ")); MYSERIAL.println(this->direction);
+      MYSERIAL.print(F("currentConfig: ")); MYSERIAL.println(this->currentConfig);
+      MYSERIAL.print(F("servoConfig: ")); MYSERIAL.println(this->servoConfig[currentServo]);
 #endif
 
-      targetMs = millis() + servoTime[currentServo] * 100;         // servoTime is in tenth of second so * 100 to get milliseconds
+      this->targetMs = millis() + servoTime[currentServo] * 100;         // servoTime is in tenth of second so * 100 to get milliseconds
 
-      servoState[currentServo] = 1;                                   // servo is moving
+      this->servoState[currentServo] = 1;                                   // servo is moving
 
 //      move the servo
 
-      numberOfSteps = abs((servoMax[currentServo] - servoMin[currentServo])) / CURRENTSTEP;
+      this->numberOfSteps = abs((this->servoMax[currentServo] - this->servoMin[currentServo])) / CURRENTSTEP;
 
 #if DEBUG == 3
       MYSERIAL.print("numberOfSteps : ");
       MYSERIAL.println(numberOfSteps);
 #endif
 
-      switch (currentConfig)
+      switch (this->currentConfig)
       {
       case 0:
       default:
-        if ( !direction )
+        if ( !this->direction )
          {
-          pwm->setPWM(currentServo, 0, servoMin[currentServo]);
+          this->pwm->setPWM(this->currentServo, 0, this->servoMin[currentServo]);
 
 #if DEBUG == 3
           MYSERIAL.println("Close default");
@@ -281,7 +260,7 @@ PP_State PinPulser::process(void)
          }
         else
          {
-          pwm->setPWM(currentServo, 0, servoMax[currentServo]);
+          this->pwm->setPWM(this->currentServo, 0, this->servoMax[this->currentServo]);
 
 #if DEBUG == 3
           MYSERIAL.println("Throw default");
@@ -289,32 +268,32 @@ PP_State PinPulser::process(void)
 
          }
 
-        state = PP_OUTPUT_ON_DELAY;
+        this->state = PP_OUTPUT_ON_DELAY;
         break;
 
       case 1:
-          currentPause = 500 / numberOfSteps;
-          state = PP_MOVING;
+          this->currentPause = 500 / this->numberOfSteps;
+          this->state = PP_MOVING;
         break;
 
       case 2:
-          currentPause = 1000 / numberOfSteps;
-          state = PP_MOVING;
+          this->currentPause = 1000 / this->numberOfSteps;
+          this->state = PP_MOVING;
         break;
 
       case 3:
-          currentPause = 2000 / numberOfSteps;
-          state = PP_MOVING;
+          this->currentPause = 2000 / this->numberOfSteps;
+          this->state = PP_MOVING;
         break;
 
       case 4:
-          currentPause = 5000 / numberOfSteps;
-          state = PP_MOVING;
+          this->currentPause = 5000 / this->numberOfSteps;
+          this->state = PP_MOVING;
         break;
 
       case 5:
-          currentPause = 10000 / numberOfSteps;
-          state = PP_MOVING;
+          this->currentPause = 10000 / this->numberOfSteps;
+          this->state = PP_MOVING;
 
 #ifdef DEBUG_MSG
         MYSERIAL.println(F("10 seconds"));
@@ -324,8 +303,8 @@ PP_State PinPulser::process(void)
 
       }
 
-      moveCount = 1;
-      moveMs = millis() + currentPause;
+      this->moveCount = 1;
+      this->moveMs = millis() + this->currentPause;
 
 #if DEBUG == 3
       MYSERIAL.print("currentPause : ");
@@ -340,7 +319,7 @@ PP_State PinPulser::process(void)
 
   case PP_MOVING:
       now = millis();
-      if ( now >= moveMs )
+      if ( now >= this->moveMs )
        {
 
 #if DEBUG == 3
@@ -348,17 +327,17 @@ PP_State PinPulser::process(void)
         MYSERIAL.println(" : MOVING");
 #endif
 
-        moveMs = millis() + currentPause;
-        if (moveCount <= numberOfSteps)
+        this->moveMs = millis() + this->currentPause;
+        if (this->moveCount <= this->numberOfSteps)
          {
 #if DEBUG == 3
           MYSERIAL.println("Moving 2");
 #endif
-          if ( !direction )
+          if ( !this->direction )
            {
-            if (servoPosition[currentServo] != servoMin[currentServo])
+            if (this->servoPosition[currentServo] != this->servoMin[currentServo])
              {
-              pwm->setPWM(currentServo, 0, servoMax[currentServo] - (CURRENTSTEP * moveCount));
+              this->pwm->setPWM(this->currentServo, 0, this->servoMax[this->currentServo] - (CURRENTSTEP * this->moveCount));
 
 #if DEBUG == 3
               MYSERIAL.print(servoMax[currentServo] + (CURRENTSTEP * moveCount));
@@ -369,9 +348,9 @@ PP_State PinPulser::process(void)
            }
           else
            {
-            if (servoPosition[currentServo] != servoMax[currentServo])
+            if (this->servoPosition[this->currentServo] != this->servoMax[this->currentServo])
              {
-              pwm->setPWM(currentServo, 0, servoMin[currentServo] + (CURRENTSTEP * moveCount));
+              this->pwm->setPWM(this->currentServo, 0, this->servoMin[this->currentServo] + (CURRENTSTEP * this->moveCount));
 
 #if DEBUG == 3
               MYSERIAL.print(servoMin[currentServo] + (CURRENTSTEP * moveCount));
@@ -380,65 +359,65 @@ PP_State PinPulser::process(void)
 
              }
            }
-          moveCount++;
+          this->moveCount++;
          }
         else
          {
-          state = PP_OUTPUT_ON_DELAY;
+          this->state = PP_OUTPUT_ON_DELAY;
          }
        }
     break;
 
   case PP_OUTPUT_ON_DELAY:
     now = millis();
-    if(now >= targetMs)
+    if(now >= this->targetMs)
     {
 
-      if ( !direction )
+      if ( !this->direction )
        {
-        servoPosition[currentServo] = servoMin[currentServo];
+        this->servoPosition[this->currentServo] = this->servoMin[this->currentServo];
 #if DEBUG == 3
-        MYSERIAL.print(currentServo);
+        MYSERIAL.print(this->currentServo);
         MYSERIAL.println(" :  Closed");
 #endif
        }
       else
        {
-        servoPosition[currentServo] = servoMax[currentServo];
+        this->servoPosition[this->currentServo] = this->servoMax[this->currentServo];
 #if DEBUG == 3
-        MYSERIAL.print(currentServo);
+        MYSERIAL.print(this->currentServo);
         MYSERIAL.println(" :  Thrown");
 #endif
        }
 
 #ifdef DEBUG_MSG
-      MYSERIAL.print(F(" now : "));MYSERIAL.print(now);MYSERIAL.print(F(" targetMs : "));MYSERIAL.println(targetMs);
-      MYSERIAL.print(F(" PinPulser::process: PP_OUTPUT_ON_DELAY: Done Deactivate Pin: ")); MYSERIAL.println(pinQueue[0],DEC);
+      MYSERIAL.print(F(" now : "));MYSERIAL.print(now);MYSERIAL.print(F(" targetMs : "));MYSERIAL.println(this->targetMs);
+      MYSERIAL.print(F(" PinPulser::process: PP_OUTPUT_ON_DELAY: Done Deactivate Pin: ")); MYSERIAL.println(this->pinQueue[0],DEC);
 #endif
 
 #ifdef DEBUG_MSG
-          MYSERIAL.print(F("currenctServo: ")); MYSERIAL.println(currentServo);
+          MYSERIAL.print(F("currenctServo: ")); MYSERIAL.println(this->currentServo);
           MYSERIAL.println(F("Stopped servo"));
 #endif
 // set servo pwm to 0 confirm this is definitely set to 0
-      pwm->setPWM(currentServo, 0, 4096);
+      this->pwm->setPWM(this->currentServo, 0, 4096);
 
 #ifdef USE_SHIFT_REGISTER
-      if (!direction)
+      if (!this->direction)
        {
-        this->ledOutput &= ~((uint16_t)1 << currentServo);
+        this->ledOutput &= ~((uint16_t)1 << this->currentServo);
        }
       else
        {
-        this->ledOutput |= ((uint16_t)1 << currentServo);
+        this->ledOutput |= ((uint16_t)1 << this->currentServo);
        }
-      this->outputLeds(ledOutput);
+      this->outputLeds(this->ledOutput);
 #else
       digitalWrite(outputs[currentServo], direction);           //    set the turnout LED to the direction 0 = closed 1 = thrown
 #endif
-      memmove(pinQueue, pinQueue + 1, PIN_PULSER_MAX_PINS);
-      state = PP_IDLE;
-      updatePosition = 1;
+      memmove(this->pinQueue, this->pinQueue + 1, PIN_PULSER_MAX_PINS);
+      this->state = PP_IDLE;
+      this->updatePosition = 1;
 
     }
     break;
@@ -446,7 +425,7 @@ PP_State PinPulser::process(void)
   }
 
 
-  return state;
+  return this->state;
  }
 
 // set servos to start position
@@ -459,11 +438,11 @@ void PinPulser::setServoStart()
     MYSERIAL.print(i);
     MYSERIAL.println(" : set ");
 
-    pwm->setPWM(i, 0, servoMax[currentServo]);
+    pwm->setPWM(i, 0, servoMax[this->currentServo]);
 
    }
 
- 
+
  }
 
 // print arrays to serial
@@ -476,42 +455,42 @@ void PinPulser::printArrays()
   for(uint8_t i = 0; i < this->numberOfTurnouts; i++)
    {
     MYSERIAL.print(F(" output : "));MYSERIAL.print(i + offSet);
-    MYSERIAL.print(F(" servoMin : "));MYSERIAL.print(servoMin[i]);
-    MYSERIAL.print(F(" servoMax : "));MYSERIAL.print(servoMax[i]);
-    MYSERIAL.print(F(" servoTime : "));MYSERIAL.print(servoTime[i]);
-    MYSERIAL.print(F(" servoConfig : "));MYSERIAL.print(servoConfig[i]);
-    MYSERIAL.print(F(" servoPosition : "));MYSERIAL.println(servoPosition[i]);
+    MYSERIAL.print(F(" servoMin : "));MYSERIAL.print(this->servoMin[i]);
+    MYSERIAL.print(F(" servoMax : "));MYSERIAL.print(this->servoMax[i]);
+    MYSERIAL.print(F(" servoTime : "));MYSERIAL.print(this->servoTime[i]);
+    MYSERIAL.print(F(" servoConfig : "));MYSERIAL.print(this->servoConfig[i]);
+    MYSERIAL.print(F(" servoPosition : "));MYSERIAL.println(this->servoPosition[i]);
    }
  }
 
 uint16_t PinPulser::getServoMin(uint8_t pin)
  {
-    return servoMin[pin];
+    return this->servoMin[pin];
  }
 
 uint16_t PinPulser::getServoMax(uint8_t pin)
  {
-    return servoMax[pin];
+    return this->servoMax[pin];
  }
 
 uint8_t PinPulser::getServoTime(uint8_t pin)
  {
-    return servoTime[pin];
+    return this->servoTime[pin];
  }
-  
+
 uint16_t PinPulser::getServoPosition(uint8_t pin)
  {
-    return servoPosition[pin];
+    return this->servoPosition[pin];
  }
 
 bool PinPulser::getUpdatePosition()
  {
-    return updatePosition;
+    return this->updatePosition;
  }
 
 void PinPulser::setUpdatePosition()
  {
-    updatePosition = 0;
+    this->updatePosition = 0;
  }
 
 // using 74HC595 shift registers
@@ -560,9 +539,12 @@ void PinPulser::outputLeds(uint16_t leds)
 // TODO this need additional hardware to use more leds with an addon PCA9555
 //  if (this->bank != 0) return;
 
-  if (this->bank == 1)
+  if ((this->bank == 1) && (this->gpio))
    {
-    gpio->setAll(leds);
+//    MYSERIAL.print(" leds : ");
+//    MYSERIAL.println(leds, BIN);
+
+    this->gpio->setAll(leds);
    }
 
  }

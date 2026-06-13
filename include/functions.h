@@ -166,7 +166,7 @@ void doSerialCommand(String readString)
  {
   readString.trim();
   readString.toUpperCase();
-  
+
   MYSERIAL.println(readString);                    // so you can see the captured string
 
   if (readString == "<Z>")
@@ -210,11 +210,11 @@ void doSerialCommand(String readString)
     MYSERIAL.println(F("Set decoder output thrown position: <N output mS / 10>"));
     MYSERIAL.println(F("Set decoder output move time: <O output S / 10>"));
     MYSERIAL.println(F("Set decoder output configuration: <P output [0:1:2:3]>"));
-    
+
     MYSERIAL.println(F("Where output is 0 - 15 as on the decoder pcb"));
 
     MYSERIAL.println(F("Show current CVs: <>"));
-                     
+
     MYSERIAL.println(F("Soft Reset: <Z>"));
 
    }
@@ -310,7 +310,7 @@ void doSerialCommand(String readString)
             MYSERIAL.print(F(" H = ")); MYSERIAL.println(H);
             MYSERIAL.print(F(" L = ")); MYSERIAL.println(L);
 #endif
-                  
+
             Dcc.setCV(CV_ACCESSORY_DECODER_ADDRESS_MSB, H);
             Dcc.setCV(CV_ACCESSORY_DECODER_ADDRESS_LSB, L);
            }
@@ -325,7 +325,7 @@ void doSerialCommand(String readString)
 /*
  * command to reset all CVs to factory default
  *
- * 
+ *
  */
 
       if (readString == "<D>")
@@ -339,7 +339,7 @@ void doSerialCommand(String readString)
  * command to set output closed value.
  * The value here is the number of milliseconds / 10
  * ie 100ms/10 = 10.
- * 
+ *
  */
 
         if (readString.startsWith("<M"))
@@ -379,7 +379,7 @@ void doSerialCommand(String readString)
  * command to set output thrown value.
  * The value here is the number of milliseconds / 10
  * ie 100ms/10 = 10.
- * 
+ *
  */
 
         if (readString.startsWith("<N"))
@@ -419,7 +419,7 @@ void doSerialCommand(String readString)
  * command to set output servo move time
  * The value here is the number of seconds / 10
  * ie 100/10 = 10.
- * 
+ *
  */
 
         if (readString.startsWith("<O"))
@@ -458,14 +458,14 @@ void doSerialCommand(String readString)
 
 /*
  * command to set output servo configuration
- * 
+ *
  * the value here is one of:
  * 0 = default move servo at maximum speed
  * 1 = fast move 0.5 second
  * 2 = medium move 1.0 second
  * 3 = slow move 2.0 second
  * 4 = extra slow move 5.0 second
- * 
+ *
  */
 
         if (readString.startsWith("<P"))
@@ -542,11 +542,12 @@ void initPinPulser(void)
       servoConfig[i]  = Dcc.getCV( CV_USER_BASE_ADDRESS + 3 + ( i * CV_PER_OUTPUT ) );
       servoPosition[i]  = Dcc.getCV( CV_USER_BASE_ADDRESS + 4 + ( i * CV_PER_OUTPUT ) ) * 10;
 
-#ifdef DEBUG_MSG
+#if DEBUG == 6
       MYSERIAL.print(F("ipp : "));
       MYSERIAL.print(F(" i : "));MYSERIAL.print(i);
       MYSERIAL.print(F(" servoMin : "));MYSERIAL.print(servoMin[i]);
-      MYSERIAL.print(F(" servoMax : "));MYSERIAL.println(servoMax[i]);
+      MYSERIAL.print(F(" servoMax : "));MYSERIAL.print(servoMax[i]);
+      MYSERIAL.print(F(" servoConfig : "));MYSERIAL.println(servoConfig[i]);
 #endif
      }
     pinPulser1->init(servoMin, servoMax, servoTime, servoConfig, servoPosition, numberOfTurnouts1, pwm1, 1);
@@ -557,21 +558,23 @@ void initPinPulser(void)
    {
     for(uint8_t i = 0; i < numberOfTurnouts2; i++)
      {
-      servoMin[i] = Dcc.getCV( CV_USER_BASE_ADDRESS_2 + ( i * CV_PER_OUTPUT ) ) * 10;
-      servoMax[i] = Dcc.getCV( CV_USER_BASE_ADDRESS_2 + 1 + ( i * CV_PER_OUTPUT ) ) * 10;
-      servoTime[i] = Dcc.getCV( CV_USER_BASE_ADDRESS_2 + 2 + ( i * CV_PER_OUTPUT ) );
-      servoConfig[i]  = Dcc.getCV( CV_USER_BASE_ADDRESS_2 + 3 + ( i * CV_PER_OUTPUT ) );
-      servoPosition[i]  = Dcc.getCV( CV_USER_BASE_ADDRESS_2 + 4 + ( i * CV_PER_OUTPUT ) ) * 10;
-     }
-    pinPulser2->init(servoMin, servoMax, servoTime, servoConfig, servoPosition, numberOfTurnouts2, pwm2, 2);
-    pinPulser2->printArrays();
+      servoMin2[i] = Dcc.getCV( CV_USER_BASE_ADDRESS_2 + ( i * CV_PER_OUTPUT ) ) * 10;
+      servoMax2[i] = Dcc.getCV( CV_USER_BASE_ADDRESS_2 + 1 + ( i * CV_PER_OUTPUT ) ) * 10;
+      servoTime2[i] = Dcc.getCV( CV_USER_BASE_ADDRESS_2 + 2 + ( i * CV_PER_OUTPUT ) );
+      servoConfig2[i]  = Dcc.getCV( CV_USER_BASE_ADDRESS_2 + 3 + ( i * CV_PER_OUTPUT ) );
+      servoPosition2[i]  = Dcc.getCV( CV_USER_BASE_ADDRESS_2 + 4 + ( i * CV_PER_OUTPUT ) ) * 10;
 
 #ifdef DEBUG_MSG
       MYSERIAL.print(F("ipp : "));
       MYSERIAL.print(F(" i : "));MYSERIAL.print(i);
-      MYSERIAL.print(F(" servoMin : "));MYSERIAL.print(servoMin[i]);
-      MYSERIAL.print(F(" servoMax : "));MYSERIAL.println(servoMax[i]);
+      MYSERIAL.print(F(" servoMin : "));MYSERIAL.print(servoMin2[i]);
+      MYSERIAL.print(F(" servoMax : "));MYSERIAL.print(servoMax2[i]);
+      MYSERIAL.print(F(" servoConfig : "));MYSERIAL.println(servoConfig2[i]);
 #endif
+
+     }
+    pinPulser2->init(servoMin2, servoMax2, servoTime2, servoConfig2, servoPosition2, numberOfTurnouts2, pwm2, 2);
+    pinPulser2->printArrays();
    }
 
   MYSERIAL.print(F(" DCC Turnout Base Address: ")); MYSERIAL.println(BaseTurnoutAddress, DEC);
@@ -579,212 +582,37 @@ void initPinPulser(void)
  }
 
 
-
-
 /*
- *  DCC functions
+void applyFactoryDefaults() {
+    for (size_t i = 0; i < NUM_TOTAL_CVS; ++i) {
+        // Fetch the pointer to the struct item sitting inside the Flash memory
+        const CVPair* flashPtr = &FactoryDefaultCVs[i];
+
+        // Read the struct fields using pgm_read_word
+        uint16_t currentCV    = pgm_read_word(&(flashPtr->cv));
+        uint16_t currentValue = pgm_read_word(&(flashPtr->value));
+
+        // Example: Write them to your library or EEPROM
+        // Dcc.setCV(currentCV, currentValue);
+    }
+}
 */
 
-// This function is called whenever a normal DCC Turnout Packet is received
+uint16_t applyFactoryDefaults() {
+    for (size_t i = 0; i < NUM_TOTAL_CVS; ++i) {
+        // Point directly to the address of the element in flash memory
+        const CVPair* flashPtr = &FactoryDefaultCVs[i];
 
-void notifyDccAccTurnoutOutput( uint16_t Addr, uint8_t Direction, uint8_t OutputPower )
- {
-#ifdef  NOTIFY_TURNOUT_MSG
-  MYSERIAL.print("notifyDccAccTurnoutOutput: Turnout: ") ;
-  MYSERIAL.print(Addr,DEC) ;
-  MYSERIAL.print(" Direction: ");
-  MYSERIAL.print(Direction ? "Thrown" : "Closed") ;
-  MYSERIAL.print(" Output: ");
-  MYSERIAL.println(OutputPower ? "On" : "Off") ;
-#endif
+        // Use pgm_read_word to copy the 16-bit values safely into local RAM variables
+        uint16_t currentCV    = pgm_read_word(&(flashPtr->CV));
+        uint8_t currentValue = pgm_read_word(&(flashPtr->Value));
 
-// check to see if in learning mode and update address
+        // Execute your logic (e.g., writing defaults back to EEPROM or your DCC Library)
+        Dcc.setCV(currentCV, currentValue);
+    }
+  return 0;
+}
 
-#ifdef LEARNING
-  if (learningMode == HIGH) {
-
-//    int H = (Addr - 1) / 64;
-//    int L = Addr - (H * 64);
-    byte L = (Addr + 3) / 4;
-    byte H = (Addr + 3) / 1024;
-
-#ifdef DEBUG_MSG
-    MYSERIAL.println("");
-    MYSERIAL.print(F("Value = ")); MYSERIAL.println(Addr,DEC);
-    MYSERIAL.print(F(" H = ")); MYSERIAL.println(H,DEC);
-    MYSERIAL.print(F(" L = ")); MYSERIAL.println(L,DEC);
-#endif
-                  
-    Dcc.setCV(CV_ACCESSORY_DECODER_ADDRESS_MSB, H);
-    Dcc.setCV(CV_ACCESSORY_DECODER_ADDRESS_LSB, L);
-
-   }
-  else
-#endif
-
-   {
-    if(( Addr >= BaseTurnoutAddress ) && ( Addr < (BaseTurnoutAddress + numberOfTurnouts1)) && OutputPower )
-     {
-      uint16_t pinIndex = ( (Addr - BaseTurnoutAddress) << 1 ) + Direction ;
-/*
- *   To get close or throw for addPin
- *   pinIndex * 2 + Direction
- *   to decode in PinPulser direction = pinIndex % 2, servo = int(pinIndex / 2)
- * 
-*/
-      pinPulser1->addPin(pinIndex);
-      
-#ifdef  NOTIFY_TURNOUT_MSG
-      MYSERIAL.print(" Pin Index: ");
-      MYSERIAL.print(pinIndex,DEC);
-//      MYSERIAL.print(" Pin: ");
-//      MYSERIAL.println(outputs[pinIndex / 2],DEC);
-#endif
-     }
-
-// TODO pinPulser2->addPin(pinIndex);
-    if (pinPulser2)
-     {
-      if(( Addr >= BaseTurnoutAddress + numberOfTurnouts1 ) && ( Addr < (BaseTurnoutAddress + numberOfTurnouts1 + numberOfTurnouts2)) && OutputPower )
-       {
-        uint16_t pinIndex = ( (Addr - BaseTurnoutAddress - numberOfTurnouts1) << 1 ) + Direction ;
-/*
- *   To get close or throw for addPin
- *   pinIndex * 2 + Direction
- *   to decode in PinPulser direction = pinIndex % 2, servo = int(pinIndex / 2)
- * 
-*/
-       pinPulser2->addPin(pinIndex);
-      
-#ifdef  NOTIFY_TURNOUT_MSG
-      MYSERIAL.print(" Pin Index: ");
-      MYSERIAL.print(pinIndex,DEC);
-//      MYSERIAL.print(" Pin: ");
-//      MYSERIAL.println(outputs[pinIndex / 2],DEC);
-#endif
-      }
-
-     }
-
-   }
-#ifdef  NOTIFY_TURNOUT_MSG
-  MYSERIAL.println();
-#endif
- }
-
-
-void notifyCVChange(uint16_t CV, uint8_t Value)
- {
-#ifdef DEBUG_MSG
-  MYSERIAL.print("notifyCVChange: CV: ") ;
-  MYSERIAL.print(CV,DEC) ;
-  MYSERIAL.print(" Value: ") ;
-  MYSERIAL.println(Value, DEC) ;
-#endif  
-
-  Value = Value;  // Silence Compiler Warnings...
-
-  if( (CV == CV_ACCESSORY_DECODER_ADDRESS_MSB) || (CV == CV_ACCESSORY_DECODER_ADDRESS_LSB) ||
-		  (CV == CV_ACCESSORY_DECODER_SERVO_MOVE_TIME)  )// ||
-//      ( ( CV - 33 ) % 5 == 0 ) ||
-//      ( ( CV - 34 ) % 5 == 0 ) ||
-//      ( ( CV - 35 ) % 5 == 0 ) ||
-//      ( ( CV - 36 ) % 5 == 0 ) )
-   {
-		initPinPulser();	                                 // Some CV we care about changed so re-init the PinPulser with the new CV settings
-   }
- }
-
-
-void notifyCVResetFactoryDefault()
-{
-  // Make FactoryDefaultCVIndex non-zero and equal to num CV's to be reset 
-  // to flag to the loop() function that a reset to Factory Defaults needs to be done
-  FactoryDefaultCVIndex = sizeof(FactoryDefaultCVs)/sizeof(CVPair);
-
-#ifdef ENABLE_SERIAL
-  MYSERIAL.println("Resetting Factory Default");
-#endif
-
-};
-
-// This function is called by the NmraDcc library when a DCC ACK needs to be sent
-// Calling this function should cause an increased 60ma current drain on the power supply for 6ms to ACK a CV Read 
-
-#ifdef  ENABLE_DCC_ACK
-void notifyCVAck(void)
- {
-#ifdef DEBUG_MSG
-  MYSERIAL.println("notifyCVAck") ;
-#endif
-  // Configure the DCC CV Programing ACK pin for an output
-  pinMode( ENABLE_DCC_ACK, OUTPUT );
-
-  // Generate the DCC ACK 60mA pulse
-  digitalWrite( ENABLE_DCC_ACK, HIGH );
-  delay( 10 );  // The DCC Spec says 6ms but 10 makes sure... ;)
-  digitalWrite( ENABLE_DCC_ACK, LOW );
- }
-#endif
-
-
-void notifyDccMsg(DCC_MSG *Msg)
- {
-// ignore idle messages and service mode reset
-
-  if (Msg->Data[0] == 0xFF || Msg->Data[0] == 0x7F || Msg->Data[0] == 0x00)
-   {
-    return;
-   }
-
-  #ifdef NOTIFY_DCC_MSG
-    MYSERIAL.print("notifyDccMsg: ") ;
-    for(uint8_t i = 0; i < Msg->Size; i++)
-     {
-      MYSERIAL.print(Msg->Data[i], HEX);
-      MYSERIAL.write(' ');
-     }
-    MYSERIAL.println();
-  #endif
-
-// 1. Service Mode CV Write (Pattern 0x70)
-  if ((Msg->Data[0] & 0xF0) == 0x70)
-   {
-    uint16_t cv = (((Msg->Data[0] & 0x03) << 8) | Msg->Data[1]) + 1;
-    uint8_t val = Msg->Data[2];
-    Dcc.setCV(cv, val);
-    BaseTurnoutAddress = Dcc.getAddr();
-   }
-
-// 2. POM (Programming on Main) (Pattern 0xE0)
-  if (Msg->Size >= 4)
-   {
-    if (Msg->Data[0] == BaseTurnoutAddress)
-     {
-      if ((Msg->Data[1] & 0xF0) == 0xE0)
-       {
-        uint16_t cv = (((Msg->Data[1] & 0x03) << 8) | Msg->Data[2]) + 1;
-        uint8_t val = Msg->Data[3];
-#ifdef NOTIFY_DCC_MSG
-        MYSERIAL.print("CV : ");
-        MYSERIAL.print(cv);
-        MYSERIAL.print(" value : ");
-        MYSERIAL.println(val);
-#endif
-        if ((cv == 8) && (val == 8))
-         {
-#ifdef ENABLE_SERIAL
-          MYSERIAL.println(F("Reset factory default CVs"));
-#endif
-          notifyCVResetFactoryDefault();
-          return;
-         }
-        Dcc.setCV(cv, val);
-        BaseTurnoutAddress = Dcc.getAddr();
-       }
-     }
-   }
- }
 
 #endif  // FUNCTIONS_H
 

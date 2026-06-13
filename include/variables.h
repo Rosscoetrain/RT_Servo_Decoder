@@ -33,15 +33,15 @@ struct CVPair
 
 /*
  * to use individual CV's for each address output requires five CV's
- * 
+ *
  * 1 servo minimum position
  * 2 servo maximum position
  * 3 time for servo to move
  * 4 servo config see below
  * 5 last servo position - this is so that on startup the servo is moved to it's last position
- * 
+ *
  * 4 servo config
- * 
+ *
  * // Config is as follows: (from DCC-EX IO_PCA9685.cpp)
  * Bit 7:     0=Set PWM to 0% to power off servo motor when finished
  *             1=Keep PWM pulses on (better when using PWM to drive an LED)
@@ -57,7 +57,7 @@ struct CVPair
 /*
  *           address
  *            1    2    3    4    5    6    7    8    9   10   11   12   13   14   15   16
- * CV     
+ * CV
  *  close    33   38   43   48   53   58   63   68   73   78   83   88   93   98   103  108
  *  throw    34   39   44   49   54   59   64   69   74   79   84   89   94   99   104  109
  *  time     35   40   45   50   55   60   65   70   75   80   85   90   95   100  105  110
@@ -69,7 +69,7 @@ struct CVPair
 /*
  * These are stored in an array of CV pairs.
  * Default array is as below
- * 
+ *
  */
 
 
@@ -77,9 +77,9 @@ struct CVPair
 */
 
 
-uint8_t FactoryDefaultCVIndex = 0;
+uint16_t FactoryDefaultCVIndex = 0;
 
-// This is the Arduino Pin Mapping to Turnout LEDs with 1 pin per turnout 
+// This is the Arduino Pin Mapping to Turnout LEDs with 1 pin per turnout
 // A1 is missing in the sequence as it is used for the DCC ACK
 
 
@@ -122,8 +122,13 @@ static uint16_t servoMin[NUM_TURNOUTS] = {};
 static uint16_t servoMax[NUM_TURNOUTS] = {};
 static uint8_t  servoTime[NUM_TURNOUTS] = {};
 static uint16_t  servoPosition[NUM_TURNOUTS] = {};
-
 static uint8_t servoConfig[NUM_TURNOUTS] = {};
+
+static uint16_t servoMin2[NUM_TURNOUTS] = {};
+static uint16_t servoMax2[NUM_TURNOUTS] = {};
+static uint8_t  servoTime2[NUM_TURNOUTS] = {};
+static uint16_t  servoPosition2[NUM_TURNOUTS] = {};
+static uint8_t servoConfig2[NUM_TURNOUTS] = {};
 
 char* version;
 uint8_t versionBuffer[3];
@@ -140,4 +145,4 @@ Adafruit_PWMServoDriver* pwm2 = NULL;
 
 #endif
 
-  
+
