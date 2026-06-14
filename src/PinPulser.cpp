@@ -213,7 +213,9 @@ PP_State PinPulser::process(void)
     if(this->pinQueue[0] != PIN_PULSER_SLOT_EMPTY)
      {
 
+#if debug == 6
       this->printArrays();
+#endif
 
       this->updatePosition = 0;
 
