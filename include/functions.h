@@ -288,6 +288,26 @@ void doSerialCommand(String readString)
           splitter = NULL;
          }
 
+
+        if (readString.startsWith("<Y>"))
+         {
+          for (int a = 1; a <= NUM_TURNOUTS; a++)
+           {
+            notifyDccAccTurnoutOutput( a, 1, 1 );
+            MYSERIAL.print(a);
+            MYSERIAL.println(" throw");
+            delay(10000);
+            notifyDccAccTurnoutOutput( a, 0, 1 );
+            MYSERIAL.print(a);
+            MYSERIAL.println(" close");
+            delay(10000);
+           }
+         }
+
+
+
+
+
 // command to set address <A address>
 // address will be adjusted to the correct base turnout address
 // eg if address is 2 this will be corrected to 1 as the address are groups of 8 with an offset of 4
