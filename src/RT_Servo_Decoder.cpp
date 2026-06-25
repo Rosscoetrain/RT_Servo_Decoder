@@ -66,19 +66,6 @@ void setup()
   // Call the main DCC Init function to enable the DCC Receiver
   Dcc.init( MAN_ID_DIY, DCC_DECODER_VERSION_NUM, FLAGS_OUTPUT_ADDRESS_MODE | FLAGS_DCC_ACCESSORY_DECODER, 0 );
 
-#ifdef ENABLE_SERIAL
-  MYSERIAL.print("Rosscoe Train DCC 16 Servo Accessory Decoder. ");
-
-  MYSERIAL.print(F("Version: "));
-  MYSERIAL.print(versionBuffer[0]);
-  MYSERIAL.print(F("."));
-  MYSERIAL.print(versionBuffer[1]);
-  MYSERIAL.print(F("."));
-  MYSERIAL.println(versionBuffer[2]);
-
-  MYSERIAL.println();
-#endif
-
   Wire.begin();
 
   // Test and init 0x40
@@ -104,6 +91,25 @@ void setup()
     numberOfTurnouts2 = NUM_TURNOUTS;
     pinPulser2 = new PinPulser();
    }
+
+
+
+#ifdef ENABLE_SERIAL
+  MYSERIAL.print("Rosscoe Train DCC ");
+  MYSERIAL.print(pinPulser2 ? 32:16);
+  MYSERIAL.print(" Servo Accessory Decoder. ");
+
+  MYSERIAL.print(F("Version: "));
+  MYSERIAL.print(versionBuffer[0]);
+  MYSERIAL.print(F("."));
+  MYSERIAL.print(versionBuffer[1]);
+  MYSERIAL.print(F("."));
+  MYSERIAL.println(versionBuffer[2]);
+
+  MYSERIAL.println();
+#endif
+
+
 
 // set pins for shift register to output
 
