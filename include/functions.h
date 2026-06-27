@@ -321,11 +321,12 @@ void doSerialCommand(String readString)
           if ( itemCount == 2)
            {
             int addr = splitter->getItemAtIndex(1).toInt();
+            setAddress = true;
 
             byte L = (addr + 3) / 4;
             byte H = (addr + 3) / 1024;
 
-#ifdef DEBUG_MSG
+#if DEBUG == 6
             MYSERIAL.print(F("Value = ")); MYSERIAL.println(addr);
             MYSERIAL.print(F(" H = ")); MYSERIAL.println(H);
             MYSERIAL.print(F(" L = ")); MYSERIAL.println(L);
@@ -333,6 +334,7 @@ void doSerialCommand(String readString)
 
             Dcc.setCV(CV_ACCESSORY_DECODER_ADDRESS_MSB, H);
             Dcc.setCV(CV_ACCESSORY_DECODER_ADDRESS_LSB, L);
+            setAddress = false;
            }
           else
            {

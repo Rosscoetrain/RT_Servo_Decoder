@@ -22,18 +22,14 @@
 #ifndef DEFINES_H
 #define DEFINES_H
 
-// this is the serial number for the board look on the back of the decoder board
-//
-#define SERIAL_NUMBER 45
+// If we haven't got a custom config.h, use the example.
+#if __has_include ( "config.h")
+  #include "config.h"
+#else
+  #warning config.h not found. Using defaults from config.example.h
+  #include "config.example.h"
+#endif
 
-// Un-Comment the line below to force CVs to be written to the Factory Default values
-// defined in the FactoryDefaultCVs below on Start-Up
-// THIS NEEDS to be un-commented and uploaded once to setup the eeprom
-// after uploading comment out the line and upload again for normal operation
-//#define FORCE_RESET_FACTORY_DEFAULT_CV
-
-// To disable serial communications via USB comment out the following.
-#define ENABLE_SERIAL
 
 #ifdef ENABLE_SERIAL
 

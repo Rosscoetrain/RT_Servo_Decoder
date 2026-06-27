@@ -128,6 +128,7 @@ void notifyCVResetFactoryDefault()
   // Make FactoryDefaultCVIndex non-zero and equal to num CV's to be reset
   // to flag to the loop() function that a reset to Factory Defaults needs to be done
 //  FactoryDefaultCVIndex = sizeof(FactoryDefaultCVs)/sizeof(CVPair);
+  setAddress = true;
   FactoryDefaultCVIndex = NUM_TOTAL_CVS;
 
 #ifdef ENABLE_SERIAL
@@ -219,41 +220,77 @@ void notifyDccMsg(DCC_MSG *Msg)
 
 
 uint8_t notifyCVWrite (uint16_t CV, uint8_t Value)
-//void notifyDccCVChange (uint16_t CV, uint8_t Value)
  {
 
 #if DEBUG == 6
-  MYSERIAL.print("notifyCVWrite cv : ");
+  MYSERIAL.print("notifyCVWrite 1 cv : ");
   MYSERIAL.print(CV);
   MYSERIAL.print(" value : ");
   MYSERIAL.println(Value);
+  MYSERIAL.print(" setAddress : ");
+  MYSERIAL.println(setAddress);
 #endif
+
+  if ((CV == 8) && (Value == 8))  // factory reset return before writing to CV
+   {
+    notifyCVResetFactoryDefault();
+    return Value;
+   }
+
+  if (CV == 8)                    // ignore any attempts to write to CV8
+   {
+    return Value;
+   }
+
+  if (((CV == 1) || (CV == 9)) && (!setAddress))     // ignore writes to CV1 and CV9 causes problems with actual address
+   {
+#if DEBUG == 6
+    MYSERIAL.print(" not setAddress : ");
+    MYSERIAL.println(setAddress);
+#endif
+    return Value;
+   }
+
+
+  if ((CV == 1) && (setAddress))
+   {
+
+#if DEBUG == 6
+    MYSERIAL.print("notifyCVWrite setAddress LSB cv : ");
+    MYSERIAL.print(CV);
+    MYSERIAL.print(" value : ");
+    MYSERIAL.println(Value);
+#endif
+
+    EEPROM.update(CV, Value);
+    return Value;
+   }
+
+  if ((CV == 9) && (setAddress))
+   {
+
+#if DEBUG == 6
+    MYSERIAL.print("notifyCVWrite setAddress MSB cv : ");
+    MYSERIAL.print(CV);
+    MYSERIAL.print(" value : ");
+    MYSERIAL.println(Value);
+#endif
+
+    EEPROM.update(CV, Value);
+    return Value;
+   }
+
+#if DEBUG == 6
+    MYSERIAL.println("past MSB ");
+#endif
+
 
   if ((CV >= CV_USER_GROUP_4) && (CV <= CV_USER_GROUP_4 + NUM_TOTAL_CVS))
    {
-    if ((CV == 8) && (Value == 8))  // factory reset return before writing to CV
-     {
-      notifyCVResetFactoryDefault();
-      return Value;
-//      return;
-     }
-    if (CV == 8)                    // ignore any attempts to write to CV8
-     {
-      return Value;
-//      return;
-     }
-    if ((CV == 1) || (CV == 9))     // ignore writes to CV1 and CV9 causes problems with actual address
-     {
-      return Value;
-//      return;
-     }
-
-
     if (((CV - CV_USER_GROUP_4) % 5) == 4)   // ignore writes to store current servo position
      {
       return Value;
      }
-
 
 #if DEBUG == 6
   MYSERIAL.print(" value : ");

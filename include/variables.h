@@ -101,6 +101,8 @@ uint16_t BaseTurnoutAddress;
 uint8_t numberOfTurnouts1 = NUM_TURNOUTS;
 uint8_t numberOfTurnouts2 = NUM_TURNOUTS;
 
+bool setAddress = false;               // flag to set address from serial monitor or reset defaults.
+
 /*
  * Rosscoe Train functions and variables
  */
