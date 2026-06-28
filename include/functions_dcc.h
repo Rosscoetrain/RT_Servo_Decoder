@@ -287,7 +287,7 @@ uint8_t notifyCVWrite (uint16_t CV, uint8_t Value)
 
   if ((CV >= CV_USER_GROUP_4) && (CV <= CV_USER_GROUP_4 + NUM_TOTAL_CVS))
    {
-    if (((CV - CV_USER_GROUP_4) % 5) == 4)   // ignore writes to store current servo position
+    if ((((CV - CV_USER_GROUP_4) % 5) == 4) && (!setAddress))   // ignore writes to store current servo position
      {
       return Value;
      }
@@ -313,7 +313,10 @@ uint8_t notifyCVWrite (uint16_t CV, uint8_t Value)
 #endif
 
       EEPROM.update(CV, Value);
-      initPinPulser();
+      if (((CV - CV_USER_GROUP_4) % 5) != 4)   // don't restart on current servo position
+       {
+        initPinPulser();
+       }
      }
    }
   return Value;

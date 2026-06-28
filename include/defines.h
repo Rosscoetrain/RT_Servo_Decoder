@@ -68,8 +68,8 @@
 #define CV_ACCESSORY_DECODER_OUTPUT_PULSE_TIME 2  // CV for the Output Pulse ON ms
 #define CV_ACCESSORY_DECODER_SERVO_MOVE_TIME 3  // CV for the delay in ms to allow a CDU to recharge
 
-#define CV_ACCESSORY_DECODER_SERIAL_LSB 255       // lsb for board serial number
-#define CV_ACCESSORY_DECODER_SERIAL_MSB 256       // msb for board serial number
+//#define CV_ACCESSORY_DECODER_SERIAL_LSB 255       // lsb for board serial number
+//#define CV_ACCESSORY_DECODER_SERIAL_MSB 256       // msb for board serial number
 
 
 #define CV_PER_OUTPUT 5                           // how many CV's are used per decoder output

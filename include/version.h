@@ -18,8 +18,9 @@
 #ifndef VERSION_H
 #define VERSION_H
 
-#define VERSION "1.3.0"
+#define VERSION "1.3.1"
 
+// 1.3.1  - update servo last position in CV
 // 1.3.0  - add detection of second PCA9685 for 32 servo control
 //        - add detection of PCA9555 for additional 16 led control when second PCA9685 exists.
 //
